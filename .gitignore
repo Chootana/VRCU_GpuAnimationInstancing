@@ -58,3 +58,17 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+.vsconfig
+Recordings*
+
+Assets/CyanEmu*
+Assets/Editor*
+Assets/External*
+Assets/Gizmos*
+Assets/SerializedUdonPrograms*
+Assets/Udon*
+Assets/UdonSharp*
+Assets/VRChat Examples*
+Assets/VRCSDK*
+
+
