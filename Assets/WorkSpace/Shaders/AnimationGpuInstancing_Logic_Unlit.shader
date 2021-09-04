@@ -1,4 +1,4 @@
-﻿Shader "AnimationGpuInstancing/Unlit"
+﻿Shader "AnimationGpuInstancing/Logic"
 {
     Properties
     {
@@ -11,7 +11,10 @@
         _EndFrame("End Frame", Int) = 0 
         _FrameCount("Frame Count", Int) = 1 
         _OffsetSeconds("Offset Seconds", Float) = 0 
-        _PixelCountPerFrame("Pixel Count Per Frame", Int) = 0 
+        _PixelCountPerFrame("Pixel Count Per Frame", Int) = 0
+
+        [NoScaleOffset]_TruthTableTex("True Table Texture", 2D) = "white" {}
+
     }
     SubShader
     {
@@ -50,6 +53,7 @@
                 float4 vertex : SV_POSITION;
                 float4 normal : NORMAL;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
+
             };
 
             UNITY_INSTANCING_BUFFER_START(Props)
@@ -66,22 +70,39 @@
 #define _Color_arr Props
             UNITY_INSTANCING_BUFFER_END(Props)
 
+
+
+
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            int _PixelCountPerFrame;     
+            int _PixelCountPerFrame; 
+
             sampler2D _AnimTex;
-            float4 _AnimTex_TexelSize;
-            v2f vert (appdata v)
+            float4 _AnimTex_TexelSize;  
+
+            sampler2D _TruthTableTex;
+            float4 _TruthTableTex_TexelSize;
+
+            v2f vert (appdata v, uint instanceID : SV_InstanceID)
             {
                 v2f o;
 
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
+                // UNITY_INITIALIZE_OUTPUT(Input, o);
 
-                int startFrame = UNITY_ACCESS_INSTANCED_PROP(_StartFrame_arr, _StartFrame);
-                int endFrame = UNITY_ACCESS_INSTANCED_PROP(_EndFrame_arr, _EndFrame);
-                int frameCount = UNITY_ACCESS_INSTANCED_PROP(_FrameCount_arr, _FrameCount);
-                float offsetSeconds = UNITY_ACCESS_INSTANCED_PROP(_OffsetSeconds_arr, _OffsetSeconds);
+                int trueTableindex = instanceID;
+                float4 value = tex2Dlod(_TruthTableTex, GetUV(trueTableindex, _TruthTableTex_TexelSize));
+                float flg = (value.r > 0.5);
+                int startFrame = flg ? 1 : 1801;
+                int endFrame = flg ? 1800 : 3600;
+                int frameCount = flg ? 1800 : 1800;
+                float offsetSeconds = 0.0;
+
+                // int startFrame = UNITY_ACCESS_INSTANCED_PROP(_StartFrame_arr, _StartFrame);
+                // int endFrame = UNITY_ACCESS_INSTANCED_PROP(_EndFrame_arr, _EndFrame);
+                // int frameCount = UNITY_ACCESS_INSTANCED_PROP(_FrameCount_arr, _FrameCount);
+                // float offsetSeconds = UNITY_ACCESS_INSTANCED_PROP(_OffsetSeconds_arr, _OffsetSeconds);
 
                 int offsetFrame = (int)((_Time.y + offsetSeconds) * 30.0);
                 int currentFrame = startFrame + offsetFrame % frameCount;
@@ -114,9 +135,14 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(i);
+                float4 _color = UNITY_ACCESS_INSTANCED_PROP(_Color_arr, _Color);
                 // sample the texture
-                float4 _Col = UNITY_ACCESS_INSTANCED_PROP(_Color_arr, _Color);
-                fixed4 col = tex2D(_MainTex, i.uv) * _Col;
+                fixed4 col = tex2D(_MainTex, i.uv) * _color;
+
+                // col = float4(0.0, 0.0, 0.0, 1.0);
+                // float4 value = tex2D(_TruthTableTex, GetUV(2, _TruthTableTex_TexelSize));
+                // col = value;
                 // apply fog
                 UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
