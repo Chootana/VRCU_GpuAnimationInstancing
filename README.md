@@ -10,3 +10,6 @@
 
 - How to controll more logically 
   - animation texture + controller texture (custome render texture)
+
+- How to proceed if there are 2 or more skinned mesh 
+- How to proceed if there are 2 mat 
