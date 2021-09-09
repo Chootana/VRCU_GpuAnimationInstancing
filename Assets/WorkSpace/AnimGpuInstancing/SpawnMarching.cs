@@ -41,9 +41,12 @@ public class SpawnMarching : UdonSharpBehaviour
         GameObject go = VRCInstantiate(animCharacter);
         go.SetActive(true);
 
-        float posX = (float) n * 0.8f;
+        int col = n / 10;
+        int row = n % 10;
+        float posX = (float)row * 0.8f;
+        float posZ = (float)col * 1.0f;
 
-        go.transform.position = new Vector3(posX, 0.0f, 0.0f);
+        go.transform.position = new Vector3(posX, 0.0f, posZ);
 
         go.transform.SetParent(this.transform);
 
@@ -51,7 +54,7 @@ public class SpawnMarching : UdonSharpBehaviour
         Vector4 frameInfo = frameInfoList.FrameInfo[idx];
 
         MaterialPropertyBlock props = new MaterialPropertyBlock();
-        // props.SetColor("_Color", new Color(Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f)));
+        // props.SetColor("_Color", new Color(Random.Range(0.1f, 1.0f), Random.Range(0.1f, 1.0f), Random.Range(0.1f, 1.0f)));
         props.SetFloat("_OffsetSeconds", Random.Range(0.0f, frameInfo[2] - frameInfo[3] - 2));
 
         props.SetFloat("_StartFrame", frameInfo[0]);

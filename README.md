@@ -30,6 +30,10 @@
     - Animationのリストアップ
   - Materialの数確認
 
+- Shaderの選択
+  　- 例えばホログラム追加Shaderとかね[link](https://zenn.dev/kento_o/articles/95ffe7efa32c16)
+
+
 - それぞれのAnimationに対して
   - 入れるかどうかチェック
   - 最大Loop数の入力

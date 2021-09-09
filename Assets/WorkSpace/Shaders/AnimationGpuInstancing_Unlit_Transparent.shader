@@ -1,4 +1,4 @@
-﻿Shader "AnimationGpuInstancing/Unlit"
+﻿Shader "AnimationGpuInstancing/Unlit_Transparent"
 {
     Properties
     {
@@ -14,7 +14,7 @@
         _OffsetSeconds("Offset Seconds", Float) = 0 
         _PixelCountPerFrame("Pixel Count Per Frame", Float) = 0 
 
-        _Loop ("Loop", Float) = 0
+        _Loop ("Loop", Float) = 10
 
         [Toggle]
         _DEBUG("DEBUG", Float) = 0
@@ -108,18 +108,15 @@
         uint offsetFrame = (uint)((time + offsetSeconds) * 30.0);
         uint currentFrame = startFrame + offsetFrame % frameCount;
 
-        uint loopMax = 1;
+        uint loopMax = 20;
         uint loopNum = _Loop;
         loopNum = min(_Loop, loopMax);
         
         uint currentLoopIndex =  (uint)(offsetFrame / frameCount) % loopNum;
         currentLoopIndex = (_Loop < 1) ? 0 : currentLoopIndex;
 
-        currentLoopIndex = 0;
-
         uint clampedIndex = currentFrame * _PixelCountPerFrame;
-        uint clampedLoopIndex = (startFrame + frameCount + 1) * _PixelCountPerFrame + currentLoopIndex * 3;
-
+        uint clampedLoopIndex = (endFrame + 1) * _PixelCountPerFrame + currentLoopIndex * 3;
 
         
         float4x4 bone1Matrix = GetMatrix(clampedIndex, v.boneIndex.x, _AnimTex, _AnimTex_TexelSize);
@@ -136,7 +133,7 @@
             mul(bone3Matrix, v.vertex) * v.boneWeight.z + 
             mul(bone4Matrix, v.vertex) * v.boneWeight.w;
 
-        // pos = mul(rootMatrix, pos);
+        pos = mul(rootMatrix, pos);
 
         float4 normal = 
             mul(bone1Matrix, v.normal) * v.boneWeight.x +  
@@ -144,7 +141,7 @@
             mul(bone3Matrix, v.normal) * v.boneWeight.z+  
             mul(bone4Matrix, v.normal) * v.boneWeight.w;  
 
-        // normal = mul(rootMatrix, normal);
+        normal = mul(rootMatrix, normal);
         
         o.vertex = UnityObjectToClipPos(pos);
         UNITY_TRANSFER_FOG(o,o.vertex);
@@ -187,7 +184,8 @@
 
     SubShader 
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Transparent" "Queue"="AlphaTest+300"}
+        Blend SrcAlpha OneMinusSrcAlpha
         LOD 100
 
         Pass

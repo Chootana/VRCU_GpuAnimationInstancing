@@ -80,6 +80,9 @@ public class SpawnAnimCharacter : UdonSharpBehaviour
         GameObject go = VRCInstantiate(animCharacter);
         go.SetActive(true);
 
+        float scale = Random.Range(0.8f, 1.1f);
+        go.transform.localScale = new Vector3(scale, scale, scale);
+
         float posX = Random.Range(-6.0f, 6.0f);
         float posZ = Random.Range(-6.0f, 3.0f);
 

@@ -13,11 +13,12 @@ using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 
+
 public class UdonMeshAnimationGenerator
 {
     private const int boneMatrixRowCount = 3;
     private const int targetFrameRate = 30;
-    private const int MaxLoop = 20;
+    private const int MaxLoop = 0;
 
     [MenuItem("UdonMeshANimationGenerator/Generate")]
     private static void Generate()
@@ -57,6 +58,7 @@ public class UdonMeshAnimationGenerator
         //    EditorUtility.DisplayDialog("Warning", "Only Support 1 Udon Behaviour", "OK");
         //    return;
         //}
+
         GameObject goUdon = targetObject.transform.Find("AnimationFrameInfoList").gameObject;
         if (goUdon == null)
         {
@@ -82,21 +84,23 @@ public class UdonMeshAnimationGenerator
 
         Directory.CreateDirectory(Path.Combine(selectionPath, "AnimatedMesh"));
 
-        //Debug.Log("Hello");
+        // Mesh Renderer 
+        Mesh animMesh = SkinnedMesh2BoneWeightedMesh(skinnedMeshRenderer);
+
 
         // Animation Texture
-        Texture animTexture = GenerateAnimationTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo);
-        AssetDatabase.CreateAsset(animTexture, string.Format($"{selectionPath}/AnimatedMesh/{targetObject.name}_AnimTex.asset"));
+        Texture animTexture = GenerateAnimationTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo, ref animMesh);
+
 
         SetUdonVariable(publicVariables, "FrameInfo", animationInfo, typeof(AnimationFrameInfoList));
 
 
-        // Mesh Renderer 
-        Mesh animMesh = SkinnedMesh2BoneWeightedMesh(skinnedMeshRenderer);
-        AssetDatabase.CreateAsset(animMesh, string.Format($"{selectionPath}/AnimatedMesh/{targetObject.name}_AnimMesh.asset"));
-
         // Material 
         Material animMaterial = GenerateMaterial(targetObject, skinnedMeshRenderer, animTexture, animShader, clips, pixelCountPerFrame);
+
+        // Save Each Asset Before Generating Prefab 
+        AssetDatabase.CreateAsset(animMesh, string.Format($"{selectionPath}/AnimatedMesh/{targetObject.name}_AnimMesh.asset"));
+        AssetDatabase.CreateAsset(animTexture, string.Format($"{selectionPath}/AnimatedMesh/{targetObject.name}_AnimTex.asset"));
         AssetDatabase.CreateAsset(animMaterial, string.Format($"{selectionPath}/AnimatedMesh/{targetObject.name}_AnimMat.asset"));
 
         // Prefab
@@ -109,7 +113,7 @@ public class UdonMeshAnimationGenerator
 
     }
 
-    private static Texture GenerateAnimationTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelCountPerFrame, ref Vector4[] animationInfo)
+    private static Texture GenerateAnimationTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelCountPerFrame, ref Vector4[] animationInfo, ref Mesh mesh)
     {
         Vector2 texBoundary = CalculateTextureBoundary(clips, smr.bones.Count());
 
@@ -118,7 +122,14 @@ public class UdonMeshAnimationGenerator
         int pixelIndex = 0;
         int currentClipFrame = 0;
 
-        smr.SetBlendShapeWeight(1, 100); // [TODO] We can modify this for generate various shape Character
+        // smr.SetBlendShapeWeight(1, 100); // [TODO] We can modify this for generate various shape Character
+
+        Bounds bounds = mesh.bounds;
+        Vector3 rootRelMin = bounds.min;
+        Vector3 rootRelMax = bounds.max;
+
+        // Get Initial Root 
+        Vector3 rootPosInitial = ToVector3(smr.bones[0].localToWorldMatrix.GetColumn(3));
 
         // Default Pose 
         foreach (Matrix4x4 boneMatrix in smr.bones.Select((b, idx) => b.localToWorldMatrix * smr.sharedMesh.bindposes[idx]))
@@ -128,12 +139,11 @@ public class UdonMeshAnimationGenerator
             pixels[pixelIndex++] = new Color(boneMatrix.m20, boneMatrix.m21, boneMatrix.m22, boneMatrix.m23);
         }
 
+
         //  Save Animation 
         for (int i=0; i < clips.Count; i++)
         {
             AnimationClip clip = clips[i];
-
-            Matrix4x4 boneMatrixRoot = Matrix4x4.identity;
 
             int totalFrame = (int)(clip.length * targetFrameRate);
             foreach (int frame in Enumerable.Range(0, totalFrame))
@@ -153,43 +163,57 @@ public class UdonMeshAnimationGenerator
             }
 
             // save root matrix 
+            Matrix4x4 boneMatrixRoot = Matrix4x4.identity;
             pixels[pixelIndex++] = new Color(boneMatrixRoot.m00, boneMatrixRoot.m01, boneMatrixRoot.m02, boneMatrixRoot.m03);
             pixels[pixelIndex++] = new Color(boneMatrixRoot.m10, boneMatrixRoot.m11, boneMatrixRoot.m12, boneMatrixRoot.m13);
             pixels[pixelIndex++] = new Color(boneMatrixRoot.m20, boneMatrixRoot.m21, boneMatrixRoot.m22, boneMatrixRoot.m23);
 
-            // for loop motion, save root matrix 
+            // get final root TRS 
+            //clip.SampleAnimation(go, (float)totalFrame / targetFrameRate); // sampling
+            //var boneMatrixRootFinal = smr.bones[0].localToWorldMatrix;
+            //var pos = ToVector3(boneMatrixRootFinal.GetColumn(3));
+            //pos.y = 0.0f;
+            //var rot = boneMatrixRootFinal.rotation;
+            //var eul_yaw = rot.eulerAngles.y;
+            //var rot_yaw = Quaternion.Euler(0.0f, eul_yaw, 0.0f);
+            //boneMatrixRootFinal = Matrix4x4.TRS(pos, Quaternion.identity, new Vector3(1.0f, 1.0f, 1.0f));
 
-            clip.SampleAnimation(go, (float)totalFrame / targetFrameRate); // sampling
-            var boneMatrixRootFinal = smr.bones[0].localToWorldMatrix;
-            var pos = ToVector3(boneMatrixRootFinal.GetColumn(3));
-            pos.y = 0.0f;
-            var rot = boneMatrixRootFinal.rotation;
-            var eul_yaw = rot.eulerAngles.y;
-            var rot_yaw = Quaternion.Euler(0.0f, eul_yaw, 0.0f);
-            boneMatrixRootFinal = Matrix4x4.TRS(pos, Quaternion.identity, new Vector3(1.0f, 1.0f, 1.0f));
+            //// save each root TRS 
+            //for (int loop = 0; loop < MaxLoop; loop++)
+            //{
 
-            for (int loop = 0; loop < MaxLoop; loop++)
-            {
+            //    boneMatrixRoot = boneMatrixRootFinal * boneMatrixRoot;
 
-                boneMatrixRoot = boneMatrixRootFinal * boneMatrixRoot;
-
-                pixels[pixelIndex++] = new Color(boneMatrixRoot.m00, boneMatrixRoot.m01, boneMatrixRoot.m02, boneMatrixRoot.m03);
-                pixels[pixelIndex++] = new Color(boneMatrixRoot.m10, boneMatrixRoot.m11, boneMatrixRoot.m12, boneMatrixRoot.m13);
-                pixels[pixelIndex++] = new Color(boneMatrixRoot.m20, boneMatrixRoot.m21, boneMatrixRoot.m22, boneMatrixRoot.m23);
-
-            }
+            //    pixels[pixelIndex++] = new Color(boneMatrixRoot.m00, boneMatrixRoot.m01, boneMatrixRoot.m02, boneMatrixRoot.m03);
+            //    pixels[pixelIndex++] = new Color(boneMatrixRoot.m10, boneMatrixRoot.m11, boneMatrixRoot.m12, boneMatrixRoot.m13);
+            //    pixels[pixelIndex++] = new Color(boneMatrixRoot.m20, boneMatrixRoot.m21, boneMatrixRoot.m22, boneMatrixRoot.m23);
 
 
+            //    // Get Min Max Bounds
+            //    Vector3 rootPosFinal = ToVector3(boneMatrixRoot.GetColumn(3)) - rootPosInitial;
+            //    rootRelMax = Vector3.Max(rootRelMax, rootPosFinal);
+            //    rootRelMin = Vector3.Min(rootRelMin, rootPosFinal);
+
+
+            //}
 
 
             int frameCount = totalFrame;
-            frameCount += 1 + MaxLoop;
+            // frameCount += 1 + MaxLoop;
             int startFrame = currentClipFrame + 1;
+
             int endFrame = startFrame + frameCount - 1;
             animationInfo[i].Set(startFrame, endFrame, frameCount, MaxLoop);
-            currentClipFrame = endFrame;
+            currentClipFrame = endFrame + 1;
 
         }
+
+
+        // Set new Bounds 
+        bounds.SetMinMax(rootRelMin, rootRelMax);
+        mesh.bounds = bounds;
+
+        Debug.Log($"1 bounds : {bounds} mesh.bounds: {mesh.bounds}");
 
         texture.SetPixels(pixels);
         texture.Apply();
@@ -257,17 +281,16 @@ public class UdonMeshAnimationGenerator
         animObject.name = go.name;
 
         MeshFilter mf = animObject.AddComponent<MeshFilter>();
-        Bounds bds = mesh.bounds;
-        bds.extents = new Vector3(100f, 100f, 100f);
-        mesh.bounds = bds;
+
+
         mf.mesh = mesh;
+        Debug.Log($"Final bounds max {mesh.bounds.max} min {mesh.bounds.min} bounds {mesh.bounds}");
 
         MeshRenderer mr = animObject.AddComponent<MeshRenderer>();
         mr.sharedMaterial = material;
         mr.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
         mr.reflectionProbeUsage = ReflectionProbeUsage.Off;
         mr.lightProbeUsage = LightProbeUsage.Off;
-
 
 
         Component[] components = goUdon.GetComponents<Component>();
