@@ -7,7 +7,6 @@ using VRC.Udon;
 public class AnimationFrameInfoList : UdonSharpBehaviour
 {
 
-    public string[] AnimName;
     public Vector4[] FrameInfo;
 
 }

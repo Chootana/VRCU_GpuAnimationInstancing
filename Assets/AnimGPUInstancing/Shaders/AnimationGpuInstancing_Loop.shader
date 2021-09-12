@@ -1,4 +1,4 @@
-﻿Shader "AnimationGpuInstancing/Unlit"
+﻿Shader "AnimationGpuInstancing/Loop"
 {
     Properties
     {
@@ -8,13 +8,19 @@
         _Shininess ("Shininess", Range(0.0, 1.0)) = 0.078125
 
         [NoScaleOffset]_AnimTex("Animation Texture", 2D) = "white" {}
+
+
         _StartFrame("Start Frame", Float) = 0 
-        _EndFrame("End Frame", Float) = 0 
         _FrameCount("Frame Count", Float) = 1 
         _OffsetSeconds("Offset Seconds", Float) = 0 
         _PixelCountPerFrame("Pixel Count Per Frame", Float) = 0 
 
-        _Loop ("Loop", Float) = 0
+
+        [NoScaleOffset]_AnimLoopTex("Animation Loop Texture", 2D) = "white" {}
+        _LoopStartFrame("Loop Start Frame", Float) = 0
+        _LoopMax("Loop Max", FLoat) = 1
+        _LoopNum ("Loop Num", Float) = 1
+        
 
         [Toggle]
         _DEBUG("DEBUG", Float) = 0
@@ -26,7 +32,7 @@
     CGINCLUDE
 
     #include "UnityCG.cginc"
-    #include "AnimationGpuInstancing.cginc"
+    #include "Includes/Utils.cginc"
     
 
     struct appdata
@@ -59,8 +65,7 @@
     UNITY_INSTANCING_BUFFER_START(Props)
         UNITY_DEFINE_INSTANCED_PROP(uint, _StartFrame)
     #define _StartFrame_arr Props 
-        UNITY_DEFINE_INSTANCED_PROP(uint, _EndFrame)
-    #define _EndFrame_arr Props
+
         UNITY_DEFINE_INSTANCED_PROP(uint, _FrameCount)
     #define _FrameCount_arr Props
         UNITY_DEFINE_INSTANCED_PROP(uint, _OffsetSeconds)
@@ -79,8 +84,13 @@
     sampler2D _AnimTex;
     float4 _AnimTex_TexelSize;
 
-    uint _PixelCountPerFrame;     
-    uint _Loop;
+    sampler2D _AnimLoopTex;
+    float4 _AnimLoopTex_TexelSize;
+
+    uint _PixelCountPerFrame;  
+    uint _LoopStartFrame;
+    uint _LoopMax;   
+    uint _LoopNum;
 
     uint _DEBUG;
     half _Shininess;
@@ -94,7 +104,6 @@
         UNITY_TRANSFER_INSTANCE_ID(v, o);
 
         uint startFrame = UNITY_ACCESS_INSTANCED_PROP(_StartFrame_arr, _StartFrame);
-        uint endFrame = UNITY_ACCESS_INSTANCED_PROP(_EndFrame_arr, _EndFrame);
         uint frameCount = UNITY_ACCESS_INSTANCED_PROP(_FrameCount_arr, _FrameCount);
         float offsetSeconds = UNITY_ACCESS_INSTANCED_PROP(_OffsetSeconds_arr, _OffsetSeconds);
 
@@ -108,26 +117,26 @@
         uint offsetFrame = (uint)((time + offsetSeconds) * 30.0);
         uint currentFrame = startFrame + offsetFrame % frameCount;
 
-        uint loopMax = 1;
-        uint loopNum = _Loop;
-        loopNum = min(_Loop, loopMax);
-        
+        uint loopNum = max(1, _LoopNum);
         uint currentLoopIndex =  (uint)(offsetFrame / frameCount) % loopNum;
-        currentLoopIndex = (_Loop < 1) ? 0 : currentLoopIndex;
+        uint currentLoopFrame = (currentLoopIndex == 0)? 0 :  _LoopStartFrame + currentLoopIndex - 1;
 
-        currentLoopIndex = 0;
+        uint clampedLoopIndex = currentLoopFrame * 3;
+        float4x4 rootMatrix = GetMatrix(clampedLoopIndex, 0, _AnimLoopTex, _AnimLoopTex_TexelSize);
 
-        uint clampedIndex = currentFrame * _PixelCountPerFrame;
-        uint clampedLoopIndex = (startFrame + frameCount + 1) * _PixelCountPerFrame + currentLoopIndex * 3;
+
+        // currentLoopIndex = 0;
+
 
 
         
+        uint clampedIndex = currentFrame * _PixelCountPerFrame;
         float4x4 bone1Matrix = GetMatrix(clampedIndex, v.boneIndex.x, _AnimTex, _AnimTex_TexelSize);
         float4x4 bone2Matrix = GetMatrix(clampedIndex, v.boneIndex.y, _AnimTex, _AnimTex_TexelSize);
         float4x4 bone3Matrix = GetMatrix(clampedIndex, v.boneIndex.z, _AnimTex, _AnimTex_TexelSize);
         float4x4 bone4Matrix = GetMatrix(clampedIndex, v.boneIndex.w, _AnimTex, _AnimTex_TexelSize);
 
-        float4x4 rootMatrix = GetMatrix(clampedLoopIndex, 0, _AnimTex, _AnimTex_TexelSize);
+        // float4x4 rootMatrix = GetMatrix(clampedLoopIndex, 0, _AnimTex, _AnimTex_TexelSize);
 
 
         float4 pos = 
@@ -136,7 +145,7 @@
             mul(bone3Matrix, v.vertex) * v.boneWeight.z + 
             mul(bone4Matrix, v.vertex) * v.boneWeight.w;
 
-        // pos = mul(rootMatrix, pos);
+        pos = mul(rootMatrix, pos);
 
         float4 normal = 
             mul(bone1Matrix, v.normal) * v.boneWeight.x +  
@@ -144,7 +153,7 @@
             mul(bone3Matrix, v.normal) * v.boneWeight.z+  
             mul(bone4Matrix, v.normal) * v.boneWeight.w;  
 
-        // normal = mul(rootMatrix, normal);
+        normal = mul(rootMatrix, normal);
         
         o.vertex = UnityObjectToClipPos(pos);
         UNITY_TRANSFER_FOG(o,o.vertex);

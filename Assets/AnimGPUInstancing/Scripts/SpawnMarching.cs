@@ -55,11 +55,11 @@ public class SpawnMarching : UdonSharpBehaviour
 
         MaterialPropertyBlock props = new MaterialPropertyBlock();
         // props.SetColor("_Color", new Color(Random.Range(0.1f, 1.0f), Random.Range(0.1f, 1.0f), Random.Range(0.1f, 1.0f)));
-        props.SetFloat("_OffsetSeconds", Random.Range(0.0f, frameInfo[2] - frameInfo[3] - 2));
+        props.SetFloat("_OffsetSeconds", Random.Range(0.0f, frameInfo[2]));
 
         props.SetFloat("_StartFrame", frameInfo[0]);
-        props.SetFloat("_EndFrame", frameInfo[1] - frameInfo[3] - 1);
-        props.SetFloat("_FrameCount", frameInfo[2] - frameInfo[3] - 1);
+        props.SetFloat("_EndFrame", frameInfo[1]);
+        props.SetFloat("_FrameCount", frameInfo[2]);
 
         MeshRenderer meshRenderer = go.GetComponent<MeshRenderer>();
         meshRenderer.SetPropertyBlock(props);

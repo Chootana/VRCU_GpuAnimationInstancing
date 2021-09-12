@@ -1,3 +1,6 @@
+#ifndef _AnimationGpuInstancing
+#define _AnimationGpuInstancing
+
 float4 GetUV(uint index, float4 texelSize)
 {
     float row = index / (uint)texelSize.z + 0.5;
@@ -17,3 +20,5 @@ float4x4 GetMatrix(uint startIndex, float boneIndex, sampler2D tex, float4 texel
 
     return float4x4(row0, row1, row2, row3);
 }
+
+#endif 
