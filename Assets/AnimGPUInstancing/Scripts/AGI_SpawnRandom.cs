@@ -20,21 +20,23 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
     [Tooltip("Please Keep Under 1000")]
     [SerializeField] private int NumSpawn;
 
-    [Tooltip("(x) Min ~ (y) Max")]
-    [SerializeField] private Vector2 RandomX = new Vector2(-5.0f, 5.0f);
+    [Tooltip("(-)  ~ (+) Value")]
+    [SerializeField] private float RandomX = 5.0f;
 
-    [Tooltip("(x) Min ~ (y) Max")]
-    [SerializeField] private Vector2 RandomY = new Vector2(0.0f, 0.0f);
+    [Tooltip("(-)  ~ (+) Value")]
+    [SerializeField] private float RandomY = 0.0f;
 
-    [Tooltip("(x) Min ~ (y) Max")]
-    [SerializeField] private Vector2 RandomZ = new Vector2(-5.0f, 5.0f);
+    [Tooltip("(-)  ~ (+) Value")]
+    [SerializeField] private float RandomZ = 5.0f;
+
+    [Tooltip("(-) ~ (+) Yaw Angle [deg]")]
+    [SerializeField] private float RandomRotation = 0.0f;
+
+    [Space(10)]
 
     [Tooltip("(x) Min ~ (y) Max")]
     [SerializeField] private Vector2 RandomScale = new Vector2(0.8f, 1.2f);
 
-    [Space(10)]
-    [Tooltip("(-) ~ (+) Yaw Angle [deg]")]
-    [SerializeField] private float RandomRotation = 0.0f;
 
     GameObject[] characters = new GameObject[1000];
 
@@ -71,9 +73,9 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
         Quaternion quat_yaw = Quaternion.Euler(new Vector3(0.0f, angle_yaw, 0.0f));
 
         Vector3 targetPos = new Vector3(
-            Random.Range(RandomX.x, RandomX.y),
-            Random.Range(RandomY.x, RandomY.y),
-            Random.Range(RandomZ.x, RandomZ.y)
+            Random.Range(- RandomX, RandomX),
+            Random.Range(- RandomY, RandomY),
+            Random.Range(- RandomZ, RandomZ)
         );
 
         targetPos += this.transform.position;

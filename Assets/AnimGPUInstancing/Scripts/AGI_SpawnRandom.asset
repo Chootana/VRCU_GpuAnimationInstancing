@@ -341,7 +341,7 @@ MonoBehaviour:
       Data: 27|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: UnityEngine.Vector2, UnityEngine.CoreModule
+      Data: System.Single, mscorlib
     - Name: 
       Entry: 8
       Data: 
@@ -353,7 +353,7 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: UnityEngineVector2
+      Data: SystemSingle
     - Name: symbolOriginalName
       Entry: 1
       Data: RandomX
@@ -377,7 +377,7 @@ MonoBehaviour:
       Data: 29|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: (x) Min ~ (y) Max
+      Data: (-)  ~ (+) Value
     - Name: 
       Entry: 8
       Data: 
@@ -425,7 +425,7 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: UnityEngineVector2
+      Data: SystemSingle
     - Name: symbolOriginalName
       Entry: 1
       Data: RandomY
@@ -449,7 +449,7 @@ MonoBehaviour:
       Data: 34|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: (x) Min ~ (y) Max
+      Data: (-)  ~ (+) Value
     - Name: 
       Entry: 8
       Data: 
@@ -497,7 +497,7 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: UnityEngineVector2
+      Data: SystemSingle
     - Name: symbolOriginalName
       Entry: 1
       Data: RandomZ
@@ -521,7 +521,7 @@ MonoBehaviour:
       Data: 39|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: (x) Min ~ (y) Max
+      Data: (-)  ~ (+) Value
     - Name: 
       Entry: 8
       Data: 
@@ -551,7 +551,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: RandomScale
+      Data: RandomRotation
     - Name: $v
       Entry: 7
       Data: 41|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -569,13 +569,13 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: UnityEngineVector2
+      Data: SystemSingle
     - Name: symbolOriginalName
       Entry: 1
-      Data: RandomScale
+      Data: RandomRotation
     - Name: symbolUniqueName
       Entry: 1
-      Data: RandomScale
+      Data: RandomRotation
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
@@ -593,7 +593,7 @@ MonoBehaviour:
       Data: 44|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: (x) Min ~ (y) Max
+      Data: (-) ~ (+) Yaw Angle [deg]
     - Name: 
       Entry: 8
       Data: 
@@ -623,7 +623,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 1
-      Data: RandomRotation
+      Data: RandomScale
     - Name: $v
       Entry: 7
       Data: 46|UdonSharp.Compiler.FieldDefinition, UdonSharp.Editor
@@ -635,7 +635,7 @@ MonoBehaviour:
       Data: 48|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: System.Single, mscorlib
+      Data: UnityEngine.Vector2, UnityEngine.CoreModule
     - Name: 
       Entry: 8
       Data: 
@@ -647,13 +647,13 @@ MonoBehaviour:
       Data: 0
     - Name: symbolResolvedTypeName
       Entry: 1
-      Data: SystemSingle
+      Data: UnityEngineVector2
     - Name: symbolOriginalName
       Entry: 1
-      Data: RandomRotation
+      Data: RandomScale
     - Name: symbolUniqueName
       Entry: 1
-      Data: RandomRotation
+      Data: RandomScale
     - Name: symbolDefaultValue
       Entry: 6
       Data: 
@@ -680,7 +680,7 @@ MonoBehaviour:
       Data: 51|UnityEngine.TooltipAttribute, UnityEngine.CoreModule
     - Name: tooltip
       Entry: 1
-      Data: (-) ~ (+) Yaw Angle [deg]
+      Data: (x) Min ~ (y) Max
     - Name: 
       Entry: 8
       Data: 
