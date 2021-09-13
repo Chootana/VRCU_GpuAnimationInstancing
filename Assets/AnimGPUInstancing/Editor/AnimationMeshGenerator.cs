@@ -21,7 +21,7 @@ public class AnimationMeshGenerator : EditorWindow
 
 
     // User Parameters 
-    private const int MaxLoop = 20;
+    private const int MaxRepeat = 20;
 
 
     // Components 
@@ -235,7 +235,7 @@ public class AnimationMeshGenerator : EditorWindow
 
         // Animation Texture 
         Texture animTexture = GenerateAnimationTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo);
-        Texture animLoopTexture = GenerateAnimationLoopTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo, ref animMesh);
+        Texture animRepeatTexture = GenerateAnimationRepeatTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo, ref animMesh);
 
 
         // Udon Variable 
@@ -243,12 +243,12 @@ public class AnimationMeshGenerator : EditorWindow
         SetUdonVariable(publicVariables, "FrameInfo", animationInfo, typeof(AnimationFrameInfoList));
 
         // Material 
-        Material animMaterial = GenerateMaterial(targetObject, skinnedMeshRenderer, animTexture, animLoopTexture, animShader, clips, pixelCountPerFrame);
+        Material animMaterial = GenerateMaterial(targetObject, skinnedMeshRenderer, animTexture, animRepeatTexture, animShader, clips, pixelCountPerFrame);
 
         // Save Each Asset 
         AssetDatabase.CreateAsset(animMesh, string.Format($"{savePath}/{targetObject.name}_AnimMesh.asset"));
         AssetDatabase.CreateAsset(animTexture, string.Format($"{savePath}/{targetObject.name}_AnimTex.asset"));
-        AssetDatabase.CreateAsset(animLoopTexture, string.Format($"{savePath}/{targetObject.name}_AnimLoopTex.asset"));
+        AssetDatabase.CreateAsset(animRepeatTexture, string.Format($"{savePath}/{targetObject.name}_AnimRepeatTex.asset"));
         AssetDatabase.CreateAsset(animMaterial, string.Format($"{savePath}/{targetObject.name}_AnimMat.asset"));
 
         // Prefab 
@@ -333,9 +333,9 @@ public class AnimationMeshGenerator : EditorWindow
         return texture;
     }
 
-    private static Texture GenerateAnimationLoopTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelCountPerFrame, ref Vector4[] animationInfo, ref Mesh mesh)
+    private static Texture GenerateAnimationRepeatTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelCountPerFrame, ref Vector4[] animationInfo, ref Mesh mesh)
     {
-        Vector2 texBoundary = CalculateLoopTextureBoundary(clips, MaxLoop);
+        Vector2 texBoundary = CalculateRepeatTextureBoundary(clips, MaxRepeat);
 
         Texture2D texture = new Texture2D((int)texBoundary.x, (int)texBoundary.y, TextureFormat.RGBAHalf, false, true);
         Color[] pixels = texture.GetPixels();
@@ -376,7 +376,7 @@ public class AnimationMeshGenerator : EditorWindow
             boneMatrixRootFinal = Matrix4x4.TRS(pos, Quaternion.identity, new Vector3(1.0f, 1.0f, 1.0f));
 
             // save each root TRS 
-            for (int loop = 0; loop < MaxLoop; loop++)
+            for (int loop = 0; loop < MaxRepeat; loop++)
             {
 
                 boneMatrixRoot = boneMatrixRootFinal * boneMatrixRoot;
@@ -391,7 +391,7 @@ public class AnimationMeshGenerator : EditorWindow
                 rootRelMin = Vector3.Min(rootRelMin, rootPosFinal);
             }
 
-            int frameCount = MaxLoop;
+            int frameCount = MaxRepeat;
             int startFrame = currentClipFrame + 1;
             int endFrame = startFrame + frameCount - 1;
             animationInfo[i].z = startFrame;
@@ -431,9 +431,9 @@ public class AnimationMeshGenerator : EditorWindow
 
     }
 
-    private static Vector2 CalculateLoopTextureBoundary(IEnumerable<AnimationClip> clips, int maxLoop)
+    private static Vector2 CalculateRepeatTextureBoundary(IEnumerable<AnimationClip> clips, int maxRepeat)
     {
-        int totalPiexes = 1 + clips.Count() * BoneMatrixRowCount * MaxLoop;
+        int totalPiexes = 1 + clips.Count() * BoneMatrixRowCount * MaxRepeat;
         int texWidth = 1;
         int texHeight = 1;
 
@@ -447,7 +447,7 @@ public class AnimationMeshGenerator : EditorWindow
 
     }
 
-    private static Material GenerateMaterial(GameObject go, SkinnedMeshRenderer smr, Texture tex, Texture texLoop, Shader shader, IEnumerable<AnimationClip> clips, int pixelCountPerFrame)
+    private static Material GenerateMaterial(GameObject go, SkinnedMeshRenderer smr, Texture tex, Texture texRepeat, Shader shader, IEnumerable<AnimationClip> clips, int pixelCountPerFrame)
     {
         Material material = UnityEngine.Object.Instantiate(smr.sharedMaterial);
         material.shader = shader;
@@ -455,11 +455,8 @@ public class AnimationMeshGenerator : EditorWindow
         material.SetFloat("_PixelCountPerFrame", pixelCountPerFrame);
         material.enableInstancing = true;
 
-        if (shader.name.Contains("Loop"))
-        {
-            material.SetTexture("_AnimLoopTex", texLoop);
-            material.SetFloat("_LoopMax", MaxLoop);
-        }
+        material.SetTexture("_AnimRepeatTex", texRepeat);
+        material.SetFloat("_RepeatMax", MaxRepeat);
 
         return material;
     }

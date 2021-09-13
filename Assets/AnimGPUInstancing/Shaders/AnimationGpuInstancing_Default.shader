@@ -8,18 +8,27 @@
         _Shininess ("Shininess", Range(0.0, 1.0)) = 0.078125
 
         [NoScaleOffset]_AnimTex("Animation Texture", 2D) = "white" {}
+
+
         _StartFrame("Start Frame", Float) = 0 
         _FrameCount("Frame Count", Float) = 1 
         _OffsetSeconds("Offset Seconds", Float) = 0 
         _PixelCountPerFrame("Pixel Count Per Frame", Float) = 0 
 
-        [KeywordEnum(UNLIT, REAL)]
-        _LIGHTING("Lighting", Float) = 0
-
 
         [Toggle]
-        _DEBUG("DEBUG", Float) = 0
+        _ROOT_MOTION("Apply Root Motion", Float) = 0
+        [NoScaleOffset]_AnimRepeatTex("Animation Repeat Texture", 2D) = "white" {}
+        _RepeatStartFrame("Repeat Start Frame", Float) = 0
+        _RepeatMax("Repeat Max", FLoat) = 1
+        _RepeatNum ("Repeat Num", Float) = 1
+        
 
+        [Toggle]
+        _PAUSE("Pause Motion", Float) = 0
+
+        [KeywordEnum(UNLIT, REAL)]
+        _LIGHTING("Lighting", Float) = 0
     }
 
     CGINCLUDE
@@ -56,17 +65,29 @@
     };
 
     UNITY_INSTANCING_BUFFER_START(Props)
-        UNITY_DEFINE_INSTANCED_PROP(uint, _StartFrame)
+
+    UNITY_DEFINE_INSTANCED_PROP(uint, _StartFrame)
     #define _StartFrame_arr Props 
 
-        UNITY_DEFINE_INSTANCED_PROP(uint, _FrameCount)
+    UNITY_DEFINE_INSTANCED_PROP(uint, _FrameCount)
     #define _FrameCount_arr Props
-        UNITY_DEFINE_INSTANCED_PROP(uint, _OffsetSeconds)
+    
+    UNITY_DEFINE_INSTANCED_PROP(uint, _OffsetSeconds)
     #define _OffsetSeconds_arr Props
 
-        UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
+    UNITY_DEFINE_INSTANCED_PROP(uint, _ROOT_MOTION)
+    #define _ROOT_MOTION_arr Props
+
+    UNITY_DEFINE_INSTANCED_PROP(uint, _RepeatStartFrame)
+    #define _RepeatStartFrame_arr Props 
+
+    UNITY_DEFINE_INSTANCED_PROP(uint, _RepeatNum)
+    #define _RepeatNum_arr Props
+
+    UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
     #define _Color_arr Props
     
+
     UNITY_INSTANCING_BUFFER_END(Props)
 
     sampler2D _MainTex;
@@ -77,10 +98,17 @@
     sampler2D _AnimTex;
     float4 _AnimTex_TexelSize;
 
-    uint _PixelCountPerFrame;     
+
+    sampler2D _AnimRepeatTex;
+    float4 _AnimRepeatTex_TexelSize;
+    uint _PixelCountPerFrame;  
+
+    uint _RepeatMax;   
+
+    #define Mat4x4Identity float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 
 
-    uint _DEBUG;
+    uint _PAUSE;
     half _Shininess;
     float4 _LightColor0;
 
@@ -97,21 +125,19 @@
 
         float time = _Time.y;
 
-        #ifdef _DEBUG_ON
+#ifdef _PAUSE_ON
             time = 0;
-        #endif
+#endif
 
 
         uint offsetFrame = (uint)((time + offsetSeconds) * 30.0);
         uint currentFrame = startFrame + offsetFrame % frameCount;
 
         uint clampedIndex = currentFrame * _PixelCountPerFrame;
-
         float4x4 bone1Matrix = GetMatrix(clampedIndex, v.boneIndex.x, _AnimTex, _AnimTex_TexelSize);
         float4x4 bone2Matrix = GetMatrix(clampedIndex, v.boneIndex.y, _AnimTex, _AnimTex_TexelSize);
         float4x4 bone3Matrix = GetMatrix(clampedIndex, v.boneIndex.z, _AnimTex, _AnimTex_TexelSize);
         float4x4 bone4Matrix = GetMatrix(clampedIndex, v.boneIndex.w, _AnimTex, _AnimTex_TexelSize);
-
 
         float4 pos = 
             mul(bone1Matrix, v.vertex) * v.boneWeight.x + 
@@ -119,23 +145,39 @@
             mul(bone3Matrix, v.vertex) * v.boneWeight.z + 
             mul(bone4Matrix, v.vertex) * v.boneWeight.w;
 
+
         float4 normal = 
             mul(bone1Matrix, v.normal) * v.boneWeight.x +  
             mul(bone2Matrix, v.normal) * v.boneWeight.y +  
             mul(bone3Matrix, v.normal) * v.boneWeight.z+  
             mul(bone4Matrix, v.normal) * v.boneWeight.w;  
 
-        
+
+        uint _root_motion = UNITY_ACCESS_INSTANCED_PROP(_ROOT_MOTION_arr, _ROOT_MOTION);
+        uint repeatStartFrame = UNITY_ACCESS_INSTANCED_PROP(_RepeatStartFrame_arr, _RepeatStartFrame);
+        uint repeatNum  = UNITY_ACCESS_INSTANCED_PROP(_RepeatNum_arr, _RepeatNum);
+        repeatNum = max(1, repeatNum);
+        uint currentRepeatIndex =  (uint)(offsetFrame / frameCount) % repeatNum;
+        uint currentRepeatFrame = (currentRepeatIndex == 0)? 0 :  repeatStartFrame + currentRepeatIndex - 1;
+        uint clampedRepeatIndex = currentRepeatFrame * 3;
+        float4x4 rootMatrix = GetMatrix(clampedRepeatIndex, 0, _AnimRepeatTex, _AnimRepeatTex_TexelSize);
+
+        rootMatrix = (_root_motion) ? rootMatrix : Mat4x4Identity;
+
+
+        pos = mul(rootMatrix, pos);
+        normal = mul(rootMatrix, normal);
+
         o.vertex = UnityObjectToClipPos(pos);
         UNITY_TRANSFER_FOG(o,o.vertex);
         o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
         o.normal = normal;
 
-        #ifdef _LIGHTING_REAL
+#ifdef _LIGHTING_REAL
             TANGENT_SPACE_ROTATION;
             o.lightDir = normalize(mul(rotation, ObjSpaceLightDir(v.vertex)));
             o.viewDir = normalize(mul(rotation, ObjSpaceViewDir(v.vertex)));
-        #endif
+#endif
 
         return o;
     }
@@ -146,13 +188,13 @@
         fixed4 tex = tex2D(_MainTex, i.uv);
         fixed4 col = tex * _Col;
 
-        #ifdef _LIGHTING_REAL
+#ifdef _LIGHTING_REAL
             half3 halfDir = normalize(i.lightDir + i.viewDir);
             half3 normal = UnpackNormal(tex2D(_NormalMap, i.uv));
             half4 diff = saturate(dot(normal, i.lightDir)) * _LightColor0;
             half3 spec = pow(max(0, dot(normal, halfDir)), _Shininess * 128.0) * _LightColor0.rgb * tex.rgb;
             col.rgb = col.rgb * diff + spec;
-        #endif
+#endif
 
         // apply fog
         UNITY_APPLY_FOG(i.fogCoord, col);
@@ -180,7 +222,7 @@
             #pragma multi_compile_instancing
             #pragma target 4.5
             #pragma shader_feature _LIGHTING_UNLIT _LIGHTING_REAL
-            #pragma shader_feature _DEBUG_ON
+            #pragma shader_feature _PAUSE_ON
 
             ENDCG
         }
@@ -198,7 +240,7 @@
             #pragma multi_compile_shadowcaster
             #pragma multi_compile_instancing
             #pragma target 4.5
-            #pragma shader_feature _DEBUG_ON
+            #pragma shader_feature _PAUSE_ON
             
 
 

@@ -3,6 +3,7 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using System;
 
 public class AGI_SpawnRandom : UdonSharpBehaviour
 {
@@ -14,11 +15,11 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
 
     [Space(10)]
     [Header("-----------------------------")]
-    [Header("Random Parameters")]
+    [Header("Random Spawn")]
     [Header("-----------------------------")]
 
     [Tooltip("Please Keep Under 1000")]
-    [SerializeField] private int NumSpawn = 10;
+    [SerializeField] private int SpawnNum = 10;
 
     [Tooltip("(-)  ~ (+) Value")]
     [SerializeField] private float RandomX = 5.0f;
@@ -38,15 +39,28 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
     [SerializeField] private Vector2 RandomScale = new Vector2(0.8f, 1.2f);
 
 
+    [Header("-----------------------------")]
+    [Header("Apply Root Motion for Locomotion")]
+    [Header("-----------------------------")]
+    [Tooltip("True for Locomotion")]
+    [SerializeField] private bool ApplyRootMotion = false;
+
+    [Tooltip("How Many Repeats to Move")]
+    [SerializeField] private int RepeatNum = 10;
+
+
     private GameObject[] characters = new GameObject[1000];
 
 
     void Start()
     {
 
-        for (int i = 0; i < NumSpawn; i++)
+        for (int i = 0; i < SpawnNum; i++)
         {
-            characters[i] = GenerateCharacter();
+
+            // characters[i] = 
+            GenerateCharacter();
+            
 
             if (i > characters.Length) return;
         }
@@ -64,16 +78,16 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
         GameObject go = VRCInstantiate(animCharacter);
         go.SetActive(true);
 
-        float scale = Random.Range(RandomScale.x, RandomScale.y);
+        float scale = UnityEngine.Random.Range(RandomScale.x, RandomScale.y);
         go.transform.localScale = new Vector3(scale, scale, scale);
 
-        float angle_yaw = Random.Range(-RandomRotation, RandomRotation);
+        float angle_yaw = UnityEngine.Random.Range(-RandomRotation, RandomRotation);
         Quaternion quat_yaw = Quaternion.Euler(new Vector3(0.0f, angle_yaw, 0.0f));
 
         Vector3 targetPos = new Vector3(
-            Random.Range(- RandomX, RandomX),
-            Random.Range(- RandomY, RandomY),
-            Random.Range(- RandomZ, RandomZ)
+            UnityEngine.Random.Range(- RandomX, RandomX),
+            UnityEngine.Random.Range(- RandomY, RandomY),
+            UnityEngine.Random.Range(- RandomZ, RandomZ)
         );
 
         targetPos += this.transform.position;
@@ -83,18 +97,19 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
         go.transform.SetParent(this.transform);
 
 
-        var idx = Random.Range(0, animationFrameInfoList.FrameInfo.Length);
+        var idx = UnityEngine.Random.Range(0, animationFrameInfoList.FrameInfo.Length);
         Vector4 frameInfo = animationFrameInfoList.FrameInfo[idx];
 
         MaterialPropertyBlock props = new MaterialPropertyBlock();
         // props.SetColor("_Color", new Color(Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f)));
-        props.SetFloat("_OffsetSeconds", Random.Range(0.0f, frameInfo[2] - 1));
+        props.SetFloat("_OffsetSeconds", UnityEngine.Random.Range(0.0f, frameInfo[1] - 1));
         props.SetFloat("_StartFrame", frameInfo[0]);
         props.SetFloat("_FrameCount", frameInfo[1]);
 
-        // Loop
-        props.SetFloat("_LoopStartFrame", frameInfo[2]);
-        props.SetFloat("_LoopNum", 10.0f);
+        // Repeat
+        props.SetFloat("_ROOT_MOTION", (ApplyRootMotion) ? 1.0f : 0.0f);
+        props.SetFloat("_RepeatStartFrame", frameInfo[2]);
+        props.SetFloat("_RepeatNum", Mathf.Min(frameInfo[3], RepeatNum));
 
 
         MeshRenderer meshRenderer = go.GetComponent<MeshRenderer>();
