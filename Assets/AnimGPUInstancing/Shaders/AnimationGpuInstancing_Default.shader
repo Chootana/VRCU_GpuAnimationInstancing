@@ -84,7 +84,7 @@
     UNITY_DEFINE_INSTANCED_PROP(uint, _RepeatNum)
     #define _RepeatNum_arr Props
 
-    UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
+    UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
     #define _Color_arr Props
     
 
