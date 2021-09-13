@@ -16,6 +16,8 @@
         _PixelCountPerFrame("Pixel Count Per Frame", Float) = 0 
 
 
+        [Toggle]
+        _ROOT_MOTION("Apply Root Motion", Float) = 0
         [NoScaleOffset]_AnimLoopTex("Animation Loop Texture", 2D) = "white" {}
         _LoopStartFrame("Loop Start Frame", Float) = 0
         _LoopMax("Loop Max", FLoat) = 1
@@ -23,7 +25,7 @@
         
 
         [Toggle]
-        _DEBUG("DEBUG", Float) = 0
+        _PAUSE("Pause Motion", Float) = 0
 
         [KeywordEnum(UNLIT, REAL)]
         _LIGHTING("Lighting", Float) = 0
@@ -88,11 +90,13 @@
     float4 _AnimLoopTex_TexelSize;
 
     uint _PixelCountPerFrame;  
+
+    uint _ROOT_MOTION;
     uint _LoopStartFrame;
     uint _LoopMax;   
     uint _LoopNum;
 
-    uint _DEBUG;
+    uint _PAUSE;
     half _Shininess;
     float4 _LightColor0;
 
@@ -109,35 +113,20 @@
 
         float time = _Time.y;
 
-        #ifdef _DEBUG_ON
+#ifdef _PAUSE_ON
             time = 0;
-        #endif
+#endif
 
 
         uint offsetFrame = (uint)((time + offsetSeconds) * 30.0);
         uint currentFrame = startFrame + offsetFrame % frameCount;
 
-        uint loopNum = max(1, _LoopNum);
-        uint currentLoopIndex =  (uint)(offsetFrame / frameCount) % loopNum;
-        uint currentLoopFrame = (currentLoopIndex == 0)? 0 :  _LoopStartFrame + currentLoopIndex - 1;
 
-        uint clampedLoopIndex = currentLoopFrame * 3;
-        float4x4 rootMatrix = GetMatrix(clampedLoopIndex, 0, _AnimLoopTex, _AnimLoopTex_TexelSize);
-
-
-        // currentLoopIndex = 0;
-
-
-
-        
         uint clampedIndex = currentFrame * _PixelCountPerFrame;
         float4x4 bone1Matrix = GetMatrix(clampedIndex, v.boneIndex.x, _AnimTex, _AnimTex_TexelSize);
         float4x4 bone2Matrix = GetMatrix(clampedIndex, v.boneIndex.y, _AnimTex, _AnimTex_TexelSize);
         float4x4 bone3Matrix = GetMatrix(clampedIndex, v.boneIndex.z, _AnimTex, _AnimTex_TexelSize);
         float4x4 bone4Matrix = GetMatrix(clampedIndex, v.boneIndex.w, _AnimTex, _AnimTex_TexelSize);
-
-        // float4x4 rootMatrix = GetMatrix(clampedLoopIndex, 0, _AnimTex, _AnimTex_TexelSize);
-
 
         float4 pos = 
             mul(bone1Matrix, v.vertex) * v.boneWeight.x + 
@@ -145,7 +134,6 @@
             mul(bone3Matrix, v.vertex) * v.boneWeight.z + 
             mul(bone4Matrix, v.vertex) * v.boneWeight.w;
 
-        pos = mul(rootMatrix, pos);
 
         float4 normal = 
             mul(bone1Matrix, v.normal) * v.boneWeight.x +  
@@ -153,18 +141,28 @@
             mul(bone3Matrix, v.normal) * v.boneWeight.z+  
             mul(bone4Matrix, v.normal) * v.boneWeight.w;  
 
+#ifdef _ROOT_MOTION_ON
+        uint loopNum = max(1, _LoopNum);
+        uint currentLoopIndex =  (uint)(offsetFrame / frameCount) % loopNum;
+        uint currentLoopFrame = (currentLoopIndex == 0)? 0 :  _LoopStartFrame + currentLoopIndex - 1;
+        uint clampedLoopIndex = currentLoopFrame * 3;
+        float4x4 rootMatrix = GetMatrix(clampedLoopIndex, 0, _AnimLoopTex, _AnimLoopTex_TexelSize);
+
+        pos = mul(rootMatrix, pos);
         normal = mul(rootMatrix, normal);
-        
+#endif 
+
+
         o.vertex = UnityObjectToClipPos(pos);
         UNITY_TRANSFER_FOG(o,o.vertex);
         o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
         o.normal = normal;
 
-        #ifdef _LIGHTING_REAL
+#ifdef _LIGHTING_REAL
             TANGENT_SPACE_ROTATION;
             o.lightDir = normalize(mul(rotation, ObjSpaceLightDir(v.vertex)));
             o.viewDir = normalize(mul(rotation, ObjSpaceViewDir(v.vertex)));
-        #endif
+#endif
 
         return o;
     }
@@ -209,7 +207,8 @@
             #pragma multi_compile_instancing
             #pragma target 4.5
             #pragma shader_feature _LIGHTING_UNLIT _LIGHTING_REAL
-            #pragma shader_feature _DEBUG_ON
+            #pragma shader_feature _PAUSE_ON
+            #pragma shader_feature _ROOT_MOTION_ON
 
             ENDCG
         }
@@ -227,7 +226,8 @@
             #pragma multi_compile_shadowcaster
             #pragma multi_compile_instancing
             #pragma target 4.5
-            #pragma shader_feature _DEBUG_ON
+            #pragma shader_feature _PAUSE_ON
+            #pragma shader_feature _ROOT_MOTION_ON
             
 
 

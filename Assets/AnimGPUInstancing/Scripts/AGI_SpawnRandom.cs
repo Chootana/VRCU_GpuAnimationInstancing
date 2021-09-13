@@ -18,7 +18,7 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
     [Header("-----------------------------")]
 
     [Tooltip("Please Keep Under 1000")]
-    [SerializeField] private int NumSpawn;
+    [SerializeField] private int NumSpawn = 10;
 
     [Tooltip("(-)  ~ (+) Value")]
     [SerializeField] private float RandomX = 5.0f;
@@ -38,14 +38,12 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
     [SerializeField] private Vector2 RandomScale = new Vector2(0.8f, 1.2f);
 
 
-    GameObject[] characters = new GameObject[1000];
-
+    private GameObject[] characters = new GameObject[1000];
 
 
     void Start()
     {
 
-        
         for (int i = 0; i < NumSpawn; i++)
         {
             characters[i] = GenerateCharacter();
@@ -93,6 +91,11 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
         props.SetFloat("_OffsetSeconds", Random.Range(0.0f, frameInfo[2] - 1));
         props.SetFloat("_StartFrame", frameInfo[0]);
         props.SetFloat("_FrameCount", frameInfo[1]);
+
+        // Loop
+        props.SetFloat("_LoopStartFrame", frameInfo[2]);
+        props.SetFloat("_LoopNum", 10.0f);
+
 
         MeshRenderer meshRenderer = go.GetComponent<MeshRenderer>();
         meshRenderer.SetPropertyBlock(props);
