@@ -58,13 +58,10 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
         for (int i = 0; i < SpawnNum; i++)
         {
 
-            // characters[i] = 
-            GenerateCharacter();
+            characters[i] = GenerateCharacter();
             
-
             if (i > characters.Length) return;
         }
-
 
     }
 
@@ -96,7 +93,6 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
 
         go.transform.SetParent(this.transform);
 
-
         var idx = UnityEngine.Random.Range(0, animationFrameInfoList.FrameInfo.Length);
         Vector4 frameInfo = animationFrameInfoList.FrameInfo[idx];
 
@@ -110,7 +106,6 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
         props.SetFloat("_ROOT_MOTION", (ApplyRootMotion) ? 1.0f : 0.0f);
         props.SetFloat("_RepeatStartFrame", frameInfo[2]);
         props.SetFloat("_RepeatNum", Mathf.Min(frameInfo[3], RepeatNum));
-
 
         MeshRenderer meshRenderer = go.GetComponent<MeshRenderer>();
         meshRenderer.SetPropertyBlock(props);

@@ -29,6 +29,7 @@ public class AnimationMeshGenerator : EditorWindow
     private SkinnedMeshRenderer skinnedMeshRenderer;
     private Animator animator;
     private AnimationClip[] clips;
+    private Material[] materials;
     private Shader animShader;
     private GameObject goUdon;
     private UdonBehaviour udonBehaviour;
@@ -47,6 +48,7 @@ public class AnimationMeshGenerator : EditorWindow
     {
         GUILayout.Label("", EditorStyles.boldLabel);
 
+        /* *** Get Components **** */
         Color defaultColor = GUI.backgroundColor;
         using (new GUILayout.VerticalScope(EditorStyles.helpBox))
         {
@@ -62,7 +64,6 @@ public class AnimationMeshGenerator : EditorWindow
             targetObject = EditorGUILayout.ObjectField(targetObject, typeof(GameObject), true) as GameObject;
 
 
-            // Get Components
             if (targetObject == null) return;
 
 
@@ -73,20 +74,7 @@ public class AnimationMeshGenerator : EditorWindow
                 return;
             }
             skinnedMeshRenderer = skinnedMeshRenderers.First();
-
-            Animator[] animators = targetObject.GetComponentsInChildren<Animator>();
-            if (!animators.Any() || animators.Count() != 1)
-            {
-                EditorGUILayout.HelpBox("Only Support 1 Animator", MessageType.Error);
-                return;
-            }
-            animator = animators.First();
-
-            clips = animator.runtimeAnimatorController.animationClips;
-            if (!clips.Any())
-            {
-                EditorGUILayout.HelpBox("No Animation", MessageType.Warning);
-            }
+            EditorGUILayout.LabelField($"{skinnedMeshRenderer.name}");
 
 
             string udonName = "AnimationFrameInfoList";
@@ -109,7 +97,50 @@ public class AnimationMeshGenerator : EditorWindow
         }
 
         GUILayout.Label("", EditorStyles.boldLabel);
+        /* *** *** *** */
 
+        /* *** Animations **** */
+        defaultColor = GUI.backgroundColor;
+        using (new GUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            GUI.backgroundColor = Color.gray;
+            using (new GUILayout.HorizontalScope(EditorStyles.toolbar))
+            {
+                GUILayout.Label("Animation Clips", EditorStyles.whiteLabel);
+
+            }
+
+            EditorGUI.indentLevel++;
+
+            Animator[] animators = targetObject.GetComponentsInChildren<Animator>();
+            if (!animators.Any() || animators.Count() != 1)
+            {
+                EditorGUILayout.HelpBox("Only Support 1 Animator", MessageType.Error);
+                return;
+            }
+            animator = animators.First();
+
+            clips = animator.runtimeAnimatorController.animationClips;
+            if (!clips.Any())
+            {
+                EditorGUILayout.HelpBox("No Animation", MessageType.Warning);
+            }
+
+            // Show Components 
+            for (int i = 0; i < clips.Length; i++)
+            {
+                EditorGUILayout.LabelField($"{clips[i].name}");
+            }
+            GUI.backgroundColor = defaultColor;
+
+
+            EditorGUI.indentLevel--;
+        }
+
+        GUILayout.Label("", EditorStyles.boldLabel);
+        /* *** *** *** */
+
+        /* *** Shader **** */
         defaultColor = GUI.backgroundColor;
         using (new GUILayout.VerticalScope(EditorStyles.helpBox))
         {
@@ -121,8 +152,6 @@ public class AnimationMeshGenerator : EditorWindow
                 GUILayout.Label("Shader", EditorStyles.whiteLabel);
 
             }
-
-
 
             EditorGUI.indentLevel++;
 
@@ -148,35 +177,10 @@ public class AnimationMeshGenerator : EditorWindow
             EditorGUI.indentLevel--;
         }
 
-
         GUILayout.Label("", EditorStyles.boldLabel);
+        /* *** *** *** */
 
-        defaultColor = GUI.backgroundColor;
-        using (new GUILayout.VerticalScope(EditorStyles.helpBox))
-        {
-            GUI.backgroundColor = Color.gray;
-            using (new GUILayout.HorizontalScope(EditorStyles.toolbar))
-            {
-                GUILayout.Label("Animations", EditorStyles.whiteLabel);
-
-            }
-
-            EditorGUI.indentLevel++;
-
-            // Show Components 
-            for (int i = 0; i < clips.Length; i++)
-            {
-                EditorGUILayout.LabelField($"{clips[i].name}");
-            }
-            GUI.backgroundColor = defaultColor;
-
-
-
-            EditorGUI.indentLevel--;
-        }
-
-        GUILayout.Label("", EditorStyles.boldLabel);
-
+        /* *** Path **** */
         defaultColor = GUI.backgroundColor;
         using (new GUILayout.VerticalScope(EditorStyles.helpBox))
         {
@@ -210,6 +214,9 @@ public class AnimationMeshGenerator : EditorWindow
 
         GUILayout.Label("", EditorStyles.boldLabel);
 
+        /* *** *** *** */
+
+        /* *** Button **** */
         using (new GUILayout.HorizontalScope(GUI.skin.box))
         {
             GUI.backgroundColor = Color.green;
@@ -218,8 +225,8 @@ public class AnimationMeshGenerator : EditorWindow
                 Convert();
             }
             GUI.backgroundColor = defaultColor;
-
         }
+        /* *** *** *** */
     }
 
     void Convert()
@@ -243,19 +250,26 @@ public class AnimationMeshGenerator : EditorWindow
         SetUdonVariable(publicVariables, "FrameInfo", animationInfo, typeof(AnimationFrameInfoList));
 
         // Material 
-        Material animMaterial = GenerateMaterial(targetObject, skinnedMeshRenderer, animTexture, animRepeatTexture, animShader, clips, pixelCountPerFrame);
+        Material[] animMaterials = GenerateMaterials(targetObject, skinnedMeshRenderer, animTexture, animRepeatTexture, animShader, clips, pixelCountPerFrame);
 
         // Save Each Asset 
         AssetDatabase.CreateAsset(animMesh, string.Format($"{savePath}/{targetObject.name}_AnimMesh.asset"));
         AssetDatabase.CreateAsset(animTexture, string.Format($"{savePath}/{targetObject.name}_AnimTex.asset"));
         AssetDatabase.CreateAsset(animRepeatTexture, string.Format($"{savePath}/{targetObject.name}_AnimRepeatTex.asset"));
-        AssetDatabase.CreateAsset(animMaterial, string.Format($"{savePath}/{targetObject.name}_AnimMat.asset"));
+
+        foreach(var material in animMaterials)
+        {
+        
+            AssetDatabase.CreateAsset(material, string.Format($"{savePath}/{targetObject.name}_AnimMat_{material.name}.asset"));
+        }
 
         // Prefab 
-        GameObject animObject = GenerateAnimObject(targetObject, goUdon, animMesh, animMaterial);
+        GameObject animObject = GenerateAnimObject(targetObject, goUdon, animMesh, animMaterials);
         PrefabUtility.SaveAsPrefabAsset(animObject, $"{savePath}/{targetObject.name}_Anim.prefab");
 
         UnityEngine.Object.DestroyImmediate(animObject);
+        
+
         AssetDatabase.SaveAssets();
     }
 
@@ -447,22 +461,29 @@ public class AnimationMeshGenerator : EditorWindow
 
     }
 
-    private static Material GenerateMaterial(GameObject go, SkinnedMeshRenderer smr, Texture tex, Texture texRepeat, Shader shader, IEnumerable<AnimationClip> clips, int pixelCountPerFrame)
+    private static Material[] GenerateMaterials(GameObject go, SkinnedMeshRenderer smr, Texture tex, Texture texRepeat, Shader shader, IEnumerable<AnimationClip> clips, int pixelCountPerFrame)
     {
-        Material material = UnityEngine.Object.Instantiate(smr.sharedMaterial);
-        material.shader = shader;
-        material.SetTexture("_AnimTex", tex);
-        material.SetFloat("_PixelCountPerFrame", pixelCountPerFrame);
-        material.enableInstancing = true;
+        Material[] materials = new Material[smr.sharedMaterials.Length];
 
-        material.SetTexture("_AnimRepeatTex", texRepeat);
-        material.SetFloat("_RepeatMax", MaxRepeat);
+        for (int i=0; i<smr.sharedMaterials.Length; i++)
+        {
+            materials[i] = UnityEngine.Object.Instantiate(smr.sharedMaterials[i]);
+            materials[i].name = smr.sharedMaterials[i].name;
+            materials[i].shader = shader;
+            materials[i].SetTexture("_AnimTex", tex);
+            materials[i].SetFloat("_PixelCountPerFrame", pixelCountPerFrame);
+            materials[i].enableInstancing = true;
 
-        return material;
+            materials[i].SetTexture("_AnimRepeatTex", texRepeat);
+            materials[i].SetFloat("_RepeatMax", MaxRepeat);
+
+        }
+
+        return materials;
     }
 
 
-    private static GameObject GenerateAnimObject(GameObject go, GameObject goUdon, Mesh mesh, Material material)
+    private static GameObject GenerateAnimObject(GameObject go, GameObject goUdon, Mesh mesh, Material[] materials)
     {
         GameObject animObject = new GameObject();
         animObject.name = go.name;
@@ -473,7 +494,7 @@ public class AnimationMeshGenerator : EditorWindow
         mf.mesh = mesh;
 
         MeshRenderer mr = animObject.AddComponent<MeshRenderer>();
-        mr.sharedMaterial = material;
+        mr.sharedMaterials = materials;
         mr.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
         mr.reflectionProbeUsage = ReflectionProbeUsage.Off;
         mr.lightProbeUsage = LightProbeUsage.Off;

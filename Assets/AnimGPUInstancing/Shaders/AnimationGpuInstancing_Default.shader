@@ -4,7 +4,7 @@
     {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Main Texture", 2D) = "white" {}
-        _NormalMap("Normal Map", 2D) = "bump" {}
+        _BumpMap("Normal Map", 2D) = "bump" {}
         _Shininess ("Shininess", Range(0.0, 1.0)) = 0.078125
 
         [NoScaleOffset]_AnimTex("Animation Texture", 2D) = "white" {}
@@ -93,7 +93,7 @@
     sampler2D _MainTex;
     float4 _MainTex_ST;
     
-    sampler2D _NormalMap;
+    sampler2D _BumpMap;
 
     sampler2D _AnimTex;
     float4 _AnimTex_TexelSize;
@@ -190,7 +190,7 @@
 
 #ifdef _LIGHTING_REAL
             half3 halfDir = normalize(i.lightDir + i.viewDir);
-            half3 normal = UnpackNormal(tex2D(_NormalMap, i.uv));
+            half3 normal = UnpackNormal(tex2D(_BumpMap, i.uv));
             half4 diff = saturate(dot(normal, i.lightDir)) * _LightColor0;
             half3 spec = pow(max(0, dot(normal, halfDir)), _Shininess * 128.0) * _LightColor0.rgb * tex.rgb;
             col.rgb = col.rgb * diff + spec;
