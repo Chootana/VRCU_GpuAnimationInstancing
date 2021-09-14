@@ -270,15 +270,24 @@ public class AnimationMeshGenerator : EditorWindow
     {
         // Prefab Init
         GameObject animObject = new GameObject();
+        Vector4[] animationInfo = new Vector4[clips.Length];
+
+        // Create Path : Main, Tex, Mat, Mesh
+        Directory.CreateDirectory(savePath);
+
+        string savePathTex = $"{savePath}/Textures";
+        Directory.CreateDirectory(savePathTex);
+
+        string savePathMat = $"{savePath}/Materials";
+        Directory.CreateDirectory(savePathMat);
+
+        string savePathMesh = $"{savePath}/Meshs";
+        Directory.CreateDirectory(savePathMesh);
 
         foreach (SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRenderers)
         {
-            /* *** SAME PARAMETERS *** */
-            Vector4[] animationInfo = new Vector4[clips.Length];
-            int pixelCountPerFrame = BoneMatrixRowCount * skinnedMeshRenderer.bones.Length; // [TODO] Different SMR has different bone size ?? 
 
-            // Path 
-            Directory.CreateDirectory(savePath);
+            int pixelCountPerFrame = BoneMatrixRowCount * skinnedMeshRenderer.bones.Length; // [TODO] Different SMR has different bone size ?? 
 
             // Mesh Renderer 
             Mesh animMesh = SkinnedMesh2BoneWeightedMesh(skinnedMeshRenderer);
@@ -288,28 +297,31 @@ public class AnimationMeshGenerator : EditorWindow
             Texture animRepeatTexture = GenerateAnimationRepeatTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo, ref animMesh);
 
 
-            // Udon Variable 
-            IUdonVariableTable publicVariables = udonBehaviour.publicVariables;
-            SetUdonVariable(publicVariables, "FrameInfo", animationInfo, typeof(AnimationFrameInfoList));
-
             // Material 
             Material[] animMaterials = GenerateMaterials(targetObject, skinnedMeshRenderer, animTexture, animRepeatTexture, animShader, clips, pixelCountPerFrame);
 
             // Save Each Asset 
-            AssetDatabase.CreateAsset(animMesh, string.Format($"{savePath}/{targetObject.name}_AnimMesh_{skinnedMeshRenderer.name}.asset"));
-            AssetDatabase.CreateAsset(animTexture, string.Format($"{savePath}/{targetObject.name}_AnimTex_{skinnedMeshRenderer.name}.asset"));
-            AssetDatabase.CreateAsset(animRepeatTexture, string.Format($"{savePath}/{targetObject.name}_AnimRepeatTex_{skinnedMeshRenderer.name}.asset"));
+            AssetDatabase.CreateAsset(animMesh, string.Format($"{savePathMesh}/AnimMesh_{skinnedMeshRenderer.name}.asset"));
+            AssetDatabase.CreateAsset(animTexture, string.Format($"{savePathTex}/AnimTex_{skinnedMeshRenderer.name}.asset"));
+            AssetDatabase.CreateAsset(animRepeatTexture, string.Format($"{savePathTex}/AnimRepeatTex_{skinnedMeshRenderer.name}.asset"));
 
             foreach(var material in animMaterials)
-            {
-        
-                AssetDatabase.CreateAsset(material, string.Format($"{savePath}/{targetObject.name}_AnimMat_{skinnedMeshRenderer.name}_{material.name}.asset"));
+            {  
+                AssetDatabase.CreateAsset(material, string.Format($"{savePathMat}/AnimMat_{skinnedMeshRenderer.name}_{material.name}.asset"));
             }
 
-            // Save to Prefab 
-            GenerateAnimObject(ref animObject, targetObject, goUdon, animMesh, animMaterials);
+            // Udon Variable 
+            IUdonVariableTable publicVariables = udonBehaviour.publicVariables;
+            SetUdonVariable(publicVariables, "FrameInfo", animationInfo, typeof(AnimationFrameInfoList));
+
+            // Save to GameObject
+            GenerateAnimObject(ref animObject, targetObject, animMesh, animMaterials);
         }
 
+        // Add Udon Behaviour 
+        AddUdonBehaviour(ref animObject, goUdon);
+
+        // Save to Prefab
         PrefabUtility.SaveAsPrefabAsset(animObject, $"{savePath}/{targetObject.name}_Anim.prefab");
         UnityEngine.Object.DestroyImmediate(animObject);
 
@@ -526,7 +538,7 @@ public class AnimationMeshGenerator : EditorWindow
     }
 
 
-    private static void GenerateAnimObject(ref GameObject parentObject, GameObject go, GameObject goUdon, Mesh mesh, Material[] materials)
+    private static void GenerateAnimObject(ref GameObject parentObject, GameObject go, Mesh mesh, Material[] materials)
     {
         GameObject animObject = new GameObject();
         animObject.name = mesh.name;
@@ -543,6 +555,12 @@ public class AnimationMeshGenerator : EditorWindow
         mr.lightProbeUsage = LightProbeUsage.Off;
 
 
+        animObject.transform.SetParent(parentObject.transform);
+    }
+
+    private static void AddUdonBehaviour(ref GameObject animObject, GameObject goUdon)
+    {
+
         Component[] components = goUdon.GetComponents<Component>();
         foreach (Component component in components)
         {
@@ -555,7 +573,6 @@ public class AnimationMeshGenerator : EditorWindow
 
         }
 
-        animObject.transform.SetParent(parentObject.transform);
     }
 
     public static Vector3 ToVector3(Vector4 parent)

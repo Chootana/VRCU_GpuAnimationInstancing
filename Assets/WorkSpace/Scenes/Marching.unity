@@ -1186,6 +1186,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Robot_Soldier_Black
       objectReference: {fileID: 0}
+    - target: {fileID: 1981860918171908, guid: c266c61b42ce56a4ca7e9190ef1209e3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4555062712112460, guid: c266c61b42ce56a4ca7e9190ef1209e3, type: 3}
       propertyPath: m_RootOrder
       value: 10
@@ -1762,7 +1766,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1461002275
 Transform:
   m_ObjectHideFlags: 0

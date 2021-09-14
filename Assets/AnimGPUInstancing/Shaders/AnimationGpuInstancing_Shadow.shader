@@ -1,4 +1,4 @@
-﻿Shader "AnimationGpuInstancing/Shadow"
+﻿Shader "AnimationGpuInstancing/Default_Shadow"
 {
     Properties
     {
