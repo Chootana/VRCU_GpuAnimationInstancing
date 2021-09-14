@@ -1,4 +1,4 @@
-﻿Shader "AnimationGpuInstancing/Default"
+﻿Shader "AnimationGpuInstancing/Shadow"
 {
     Properties
     {
@@ -227,6 +227,26 @@
             ENDCG
         }
 
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags{"LightMode" = "ShadowCaster"}
+            Zwrite On
+            ZTest LEqual
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag _shadow
+            #pragma multi_compile_shadowcaster
+            #pragma multi_compile_instancing
+            #pragma target 4.5
+            #pragma shader_feature _PAUSE_ON
+            
+
+
+            ENDCG
+
+        }
     }
 
 }

@@ -107,8 +107,13 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
         props.SetFloat("_RepeatStartFrame", frameInfo[2]);
         props.SetFloat("_RepeatNum", Mathf.Min(frameInfo[3], RepeatNum));
 
-        MeshRenderer meshRenderer = go.GetComponent<MeshRenderer>();
-        meshRenderer.SetPropertyBlock(props);
+        MeshRenderer[] meshRenderers = go.GetComponentsInChildren<MeshRenderer>();
+        foreach(var meshRenderer in meshRenderers)
+        {
+            meshRenderer.SetPropertyBlock(props);
+        }
+
+        //MeshRenderer meshRenderer = go.GetComponent<MeshRenderer>();
 
         return go;
     }
