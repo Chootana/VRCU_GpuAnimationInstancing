@@ -36,7 +36,6 @@
     #include "UnityCG.cginc"
     #include "Includes/Utils.cginc"
     
-
     struct appdata
     {
         float4 vertex : POSITION;
