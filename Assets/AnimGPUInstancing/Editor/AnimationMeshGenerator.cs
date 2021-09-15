@@ -37,6 +37,9 @@ public class AnimationMeshGenerator : EditorWindow
 
     private int shaderIdx;
 
+    // Scroll 
+    private Vector2 _scrollPosition = Vector2.zero;
+
     [MenuItem("Window/Extension Tools/Animation Mesh Generator")]
     static void Open()
     {
@@ -85,6 +88,9 @@ public class AnimationMeshGenerator : EditorWindow
             EditorGUI.indentLevel--;
         }
 
+        /* *** Scroll Start *** */
+        _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+
         GUILayout.Label("", EditorStyles.boldLabel);
         /* *** *** *** */
 
@@ -108,10 +114,6 @@ public class AnimationMeshGenerator : EditorWindow
                 EditorGUILayout.HelpBox("Skinned Mesh Renderer Not Found", MessageType.Error);
                 return;
             }
-
-            // skinnedMeshRenderer = skinnedMeshRenderers.First();
-            // EditorGUILayout.LabelField($"{skinnedMeshRenderer.name}");
-
 
             // Show Components 
             for (int i = 0; i < skinnedMeshRenderers.Length; i++)
@@ -252,6 +254,10 @@ public class AnimationMeshGenerator : EditorWindow
         GUILayout.Label("", EditorStyles.boldLabel);
 
         /* *** *** *** */
+
+        /* *** Scroll End *** */
+        EditorGUILayout.EndScrollView();
+
 
         /* *** Button **** */
         using (new GUILayout.HorizontalScope(GUI.skin.box))
@@ -536,7 +542,6 @@ public class AnimationMeshGenerator : EditorWindow
 
         return materials;
     }
-
 
     private static void GenerateAnimObject(ref GameObject parentObject, GameObject go, Mesh mesh, Material[] materials)
     {
