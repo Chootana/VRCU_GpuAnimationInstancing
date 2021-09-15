@@ -9,7 +9,6 @@
 
         [NoScaleOffset]_AnimTex("Animation Texture", 2D) = "white" {}
 
-
         _StartFrame("Start Frame", Float) = 0 
         _FrameCount("Frame Count", Float) = 1 
         _OffsetSeconds("Offset Seconds", Float) = 0 
@@ -30,6 +29,8 @@
         [KeywordEnum(UNLIT, REAL)]
         _LIGHTING("Lighting", Float) = 0
     }
+
+    CustomEditor "ExampleShaderInspector"
 
     CGINCLUDE
 
