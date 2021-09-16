@@ -26,7 +26,7 @@
         _Shininess ("Shininess", Range(0.0, 1.0)) = 0.078125
     }
 
-    CustomEditor "ExampleShaderInspector"
+    CustomEditor "AGI_ShaderInspector"
 
     CGINCLUDE
 

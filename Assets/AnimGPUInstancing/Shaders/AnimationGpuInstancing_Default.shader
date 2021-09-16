@@ -28,6 +28,8 @@
         _LIGHTING("Lighting", Float) = 0
     }
 
+    CustomEditor "AGI_ShaderInspector"
+
     CGINCLUDE
 
     #include "UnityCG.cginc"

@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEditor;
 
 
-public class ExampleShaderInspector : ShaderGUI
+public class AGI_ShaderInspector : ShaderGUI
 {
     #region MaterialProperties 
     MaterialProperty mainTex;
@@ -31,8 +31,6 @@ public class ExampleShaderInspector : ShaderGUI
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
     {
-        // show all 
-        //base.OnGUI(materialEditor, properties);
     
         
         Material material = materialEditor.target as Material;
