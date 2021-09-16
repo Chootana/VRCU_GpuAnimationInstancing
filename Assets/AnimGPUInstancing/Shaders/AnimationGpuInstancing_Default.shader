@@ -1,4 +1,4 @@
-﻿Shader "AnimationGpuInstancing/Default"
+﻿Shader "AnimationGpuInstancing/Base"
 {
     Properties
     {
@@ -22,10 +22,7 @@
         _RepeatStartFrame("Repeat Start Frame", Float) = 0
         _RepeatMax("Repeat Max", FLoat) = 1
         _RepeatNum ("Repeat Num", Float) = 1
-        
-
-        [Toggle]
-        _PAUSE("Pause Motion", Float) = 0
+    
 
         [KeywordEnum(UNLIT, REAL)]
         _LIGHTING("Lighting", Float) = 0
@@ -107,8 +104,6 @@
 
     #define Mat4x4Identity float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 
-
-    uint _PAUSE;
     half _Shininess;
     float4 _LightColor0;
 
@@ -124,11 +119,6 @@
         float offsetSeconds = UNITY_ACCESS_INSTANCED_PROP(_OffsetSeconds_arr, _OffsetSeconds);
 
         float time = _Time.y;
-
-#ifdef _PAUSE_ON
-            time = 0;
-#endif
-
 
         uint offsetFrame = (uint)((time + offsetSeconds) * 30.0);
         uint currentFrame = startFrame + offsetFrame % frameCount;
@@ -222,7 +212,6 @@
             #pragma multi_compile_instancing
             #pragma target 4.5
             #pragma shader_feature _LIGHTING_UNLIT _LIGHTING_REAL
-            #pragma shader_feature _PAUSE_ON
 
             ENDCG
         }

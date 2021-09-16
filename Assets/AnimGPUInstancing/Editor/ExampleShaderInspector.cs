@@ -17,21 +17,27 @@ public class ExampleShaderInspector : ShaderGUI
     MaterialProperty pixelCountPerFrame;
 
     MaterialProperty isRootMotion;
-    MaterialProperty animRepeatTex;
+    MaterialProperty repeatTex;
+    MaterialProperty repeatStartFrame;
     MaterialProperty repeatMax;
     MaterialProperty repeatNum;
 
     MaterialProperty isPause;
     MaterialProperty isLighting;
+    MaterialProperty shininess;
     MaterialProperty bumpMap;
     #endregion
+
 
     public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] props)
     {
         // show all 
         //base.OnGUI(materialEditor, properties);
-
+    
+        
         Material material = materialEditor.target as Material;
+
+        /* *** *** *** */
 
         mainTex = FindProperty("_MainTex", props);
         color = FindProperty("_Color", props);
@@ -42,14 +48,16 @@ public class ExampleShaderInspector : ShaderGUI
         pixelCountPerFrame = FindProperty("_PixelCountPerFrame", props);
 
         isRootMotion = FindProperty("_ROOT_MOTION", props);
-        animRepeatTex = FindProperty("_AnimRepeatTex", props);
+        repeatTex = FindProperty("_RepeatTex", props);
+        repeatStartFrame = FindProperty("_RepeatStartFrame", props);
         repeatMax = FindProperty("_RepeatMax", props);
         repeatNum = FindProperty("_RepeatNum", props);
 
-        isPause = FindProperty("_PAUSE", props);
         isLighting = FindProperty("_LIGHTING", props);
-
+        shininess = FindProperty("_Shininess", props);
         bumpMap = FindProperty("_BumpMap", props);
+
+        /* *** *** *** */
 
 
         // materialEditor.ShaderProperty(mainTexProps, mainTexProps.displayName);
@@ -62,35 +70,50 @@ public class ExampleShaderInspector : ShaderGUI
 
         EditorGUILayout.Space();
 
+
         /* *** Animation *** */
         materialEditor.TexturePropertySingleLine(new GUIContent("Animation Texture"), animTex);
+
+        EditorGUI.indentLevel++;
+
         materialEditor.ShaderProperty(startFrame, startFrame.displayName);
         materialEditor.ShaderProperty(frameCount, frameCount.displayName);
         materialEditor.ShaderProperty(offsetSeconds, offsetSeconds.displayName);
         materialEditor.ShaderProperty(pixelCountPerFrame, pixelCountPerFrame.displayName);
 
+        EditorGUI.indentLevel--;
+
         EditorGUILayout.Space();
 
         /* *** Repeat *** */
         materialEditor.ShaderProperty(isRootMotion, isRootMotion.displayName);
-        materialEditor.TexturePropertySingleLine(new GUIContent("Animation Repeat Texture"), animRepeatTex);
-        materialEditor.ShaderProperty(repeatMax, repeatMax.displayName);
-        materialEditor.ShaderProperty(repeatNum, repeatNum.displayName);
+
+        EditorGUI.indentLevel++;
+        if (isRootMotion.floatValue == 1f) {
+            materialEditor.TexturePropertySingleLine(new GUIContent("Repeat Texture"), repeatTex);
+            materialEditor.ShaderProperty(repeatStartFrame, repeatStartFrame.displayName);
+            materialEditor.ShaderProperty(repeatMax, repeatMax.displayName);
+            materialEditor.ShaderProperty(repeatNum, repeatNum.displayName);
+        }
+        EditorGUI.indentLevel--;
 
         EditorGUILayout.Space();
 
-        /* *** DEBUG *** */
-        materialEditor.ShaderProperty(isPause, isPause.displayName);
 
         /* *** Lighting *** */
         materialEditor.ShaderProperty(isLighting, isLighting.displayName);
-        materialEditor.TexturePropertySingleLine(new GUIContent("Normal Map"), bumpMap);
-        using (new EditorGUI.IndentLevelScope())
+        EditorGUI.indentLevel++;
+        if (isLighting.floatValue == 1f)
         {
-            materialEditor.TextureScaleOffsetProperty(bumpMap);
-            EditorGUILayout.Space();
-        }
+            materialEditor.TexturePropertySingleLine(new GUIContent("Normal Map"), bumpMap);
+            using (new EditorGUI.IndentLevelScope())
+            {
+                materialEditor.TextureScaleOffsetProperty(bumpMap);
+                EditorGUILayout.Space();
+            }
 
+        }
+        EditorGUI.indentLevel--;
 
     }
 }

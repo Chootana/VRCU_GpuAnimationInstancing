@@ -1,14 +1,11 @@
-﻿Shader "AnimationGpuInstancing/Default_Shadow"
+﻿Shader "AnimationGpuInstancing/Base_Shadow"
 {
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
         _MainTex ("Main Texture", 2D) = "white" {}
-        _BumpMap("Normal Map", 2D) = "bump" {}
-        _Shininess ("Shininess", Range(0.0, 1.0)) = 0.078125
 
         [NoScaleOffset]_AnimTex("Animation Texture", 2D) = "white" {}
-
         _StartFrame("Start Frame", Float) = 0 
         _FrameCount("Frame Count", Float) = 1 
         _OffsetSeconds("Offset Seconds", Float) = 0 
@@ -17,17 +14,16 @@
 
         [Toggle]
         _ROOT_MOTION("Apply Root Motion", Float) = 0
-        [NoScaleOffset]_AnimRepeatTex("Animation Repeat Texture", 2D) = "white" {}
+        [NoScaleOffset]_RepeatTex("Animation Repeat Texture", 2D) = "white" {}
         _RepeatStartFrame("Repeat Start Frame", Float) = 0
         _RepeatMax("Repeat Max", FLoat) = 1
         _RepeatNum ("Repeat Num", Float) = 1
         
 
-        [Toggle]
-        _PAUSE("Pause Motion", Float) = 0
-
         [KeywordEnum(UNLIT, REAL)]
         _LIGHTING("Lighting", Float) = 0
+        _BumpMap("Normal Map", 2D) = "bump" {}
+        _Shininess ("Shininess", Range(0.0, 1.0)) = 0.078125
     }
 
     CustomEditor "ExampleShaderInspector"
@@ -99,16 +95,14 @@
     float4 _AnimTex_TexelSize;
 
 
-    sampler2D _AnimRepeatTex;
-    float4 _AnimRepeatTex_TexelSize;
+    sampler2D _RepeatTex;
+    float4 _RepeatTex_TexelSize;
     uint _PixelCountPerFrame;  
 
     uint _RepeatMax;   
 
     #define Mat4x4Identity float4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
 
-
-    uint _PAUSE;
     half _Shininess;
     float4 _LightColor0;
 
@@ -124,10 +118,6 @@
         float offsetSeconds = UNITY_ACCESS_INSTANCED_PROP(_OffsetSeconds_arr, _OffsetSeconds);
 
         float time = _Time.y;
-
-#ifdef _PAUSE_ON
-            time = 0;
-#endif
 
 
         uint offsetFrame = (uint)((time + offsetSeconds) * 30.0);
@@ -160,7 +150,7 @@
         uint currentRepeatIndex =  (uint)(offsetFrame / frameCount) % repeatNum;
         uint currentRepeatFrame = (currentRepeatIndex == 0)? 0 :  repeatStartFrame + currentRepeatIndex - 1;
         uint clampedRepeatIndex = currentRepeatFrame * 3;
-        float4x4 rootMatrix = GetMatrix(clampedRepeatIndex, 0, _AnimRepeatTex, _AnimRepeatTex_TexelSize);
+        float4x4 rootMatrix = GetMatrix(clampedRepeatIndex, 0, _RepeatTex, _RepeatTex_TexelSize);
 
         rootMatrix = (_root_motion) ? rootMatrix : Mat4x4Identity;
 
@@ -222,7 +212,6 @@
             #pragma multi_compile_instancing
             #pragma target 4.5
             #pragma shader_feature _LIGHTING_UNLIT _LIGHTING_REAL
-            #pragma shader_feature _PAUSE_ON
 
             ENDCG
         }
@@ -240,7 +229,6 @@
             #pragma multi_compile_shadowcaster
             #pragma multi_compile_instancing
             #pragma target 4.5
-            #pragma shader_feature _PAUSE_ON
             
 
 
