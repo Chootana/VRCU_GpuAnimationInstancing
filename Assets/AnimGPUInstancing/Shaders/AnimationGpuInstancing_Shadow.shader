@@ -14,7 +14,7 @@
 
         [Toggle]
         _ROOT_MOTION("Apply Root Motion", Float) = 0
-        [NoScaleOffset]_RepeatTex("Animation Repeat Texture", 2D) = "white" {}
+        [NoScaleOffset]_RepeatTex("Repeat Texture", 2D) = "white" {}
         _RepeatStartFrame("Repeat Start Frame", Float) = 0
         _RepeatMax("Repeat Max", FLoat) = 1
         _RepeatNum ("Repeat Num", Float) = 1

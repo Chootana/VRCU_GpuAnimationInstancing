@@ -18,7 +18,7 @@
 
         [Toggle]
         _ROOT_MOTION("Apply Root Motion", Float) = 0
-        [NoScaleOffset]_AnimRepeatTex("Animation Repeat Texture", 2D) = "white" {}
+        [NoScaleOffset]_RepeatTex("Repeat Texture", 2D) = "white" {}
         _RepeatStartFrame("Repeat Start Frame", Float) = 0
         _RepeatMax("Repeat Max", FLoat) = 1
         _RepeatNum ("Repeat Num", Float) = 1
@@ -98,8 +98,8 @@
     float4 _AnimTex_TexelSize;
 
 
-    sampler2D _AnimRepeatTex;
-    float4 _AnimRepeatTex_TexelSize;
+    sampler2D _RepeatTex;
+    float4 _RepeatTex_TexelSize;
     uint _PixelCountPerFrame;  
 
     uint _RepeatMax;   
@@ -152,7 +152,7 @@
         uint currentRepeatIndex =  (uint)(offsetFrame / frameCount) % repeatNum;
         uint currentRepeatFrame = (currentRepeatIndex == 0)? 0 :  repeatStartFrame + currentRepeatIndex - 1;
         uint clampedRepeatIndex = currentRepeatFrame * 3;
-        float4x4 rootMatrix = GetMatrix(clampedRepeatIndex, 0, _AnimRepeatTex, _AnimRepeatTex_TexelSize);
+        float4x4 rootMatrix = GetMatrix(clampedRepeatIndex, 0, _RepeatTex, _RepeatTex_TexelSize);
 
         rootMatrix = (_root_motion) ? rootMatrix : Mat4x4Identity;
 

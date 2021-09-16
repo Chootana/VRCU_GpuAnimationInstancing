@@ -32,6 +32,7 @@ public class AnimationMeshGenerator : EditorWindow
     private Shader animShader;
     private GameObject goUdon;
     private UdonBehaviour udonBehaviour;
+    private float boundsScale = 1.0f;
     private string saveName = "AnimatedMesh";
     private string savePath;
 
@@ -219,6 +220,40 @@ public class AnimationMeshGenerator : EditorWindow
         GUILayout.Label("", EditorStyles.boldLabel);
         /* *** *** *** */
 
+        /* *** Other **** */
+        defaultColor = GUI.backgroundColor;
+        using (new GUILayout.VerticalScope(EditorStyles.helpBox))
+        {
+            GUI.backgroundColor = Color.gray;
+
+
+            using (new GUILayout.HorizontalScope(EditorStyles.toolbar))
+            {
+                GUILayout.Label("Other Settings", EditorStyles.whiteLabel);
+
+            }
+
+            EditorGUI.indentLevel++;
+
+            boundsScale = EditorGUILayout.FloatField("Bounds Scale", boundsScale);
+
+            if (boundsScale < 1f)
+            {
+                EditorGUILayout.HelpBox($"Not Support Value, Bounds Scale: {boundsScale} ", MessageType.Error);
+                return;
+
+            }
+
+            GUI.backgroundColor = defaultColor;
+
+
+
+            EditorGUI.indentLevel--;
+        }
+
+        GUILayout.Label("", EditorStyles.boldLabel);
+        /* *** *** *** */
+
         /* *** Path **** */
         defaultColor = GUI.backgroundColor;
         using (new GUILayout.VerticalScope(EditorStyles.helpBox))
@@ -290,17 +325,18 @@ public class AnimationMeshGenerator : EditorWindow
         string savePathMesh = $"{savePath}/Meshs";
         Directory.CreateDirectory(savePathMesh);
 
+
         foreach (SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRenderers)
         {
 
-            int pixelCountPerFrame = BoneMatrixRowCount * skinnedMeshRenderer.bones.Length; // [TODO] Different SMR has different bone size ?? 
+            int pixelCountPerFrame = BoneMatrixRowCount * skinnedMeshRenderer.bones.Length;
 
             // Mesh Renderer 
             Mesh animMesh = SkinnedMesh2BoneWeightedMesh(skinnedMeshRenderer);
 
             // Animation Texture 
             Texture animTexture = GenerateAnimationTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo);
-            Texture animRepeatTexture = GenerateAnimationRepeatTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo, ref animMesh);
+            Texture animRepeatTexture = GenerateAnimationRepeatTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo, ref animMesh, boundsScale);
 
 
             // Material 
@@ -408,7 +444,7 @@ public class AnimationMeshGenerator : EditorWindow
         return texture;
     }
 
-    private static Texture GenerateAnimationRepeatTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelCountPerFrame, ref Vector4[] animationInfo, ref Mesh mesh)
+    private static Texture GenerateAnimationRepeatTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelCountPerFrame, ref Vector4[] animationInfo, ref Mesh mesh, float boundsScale)
     {
         Vector2 texBoundary = CalculateRepeatTextureBoundary(clips, MaxRepeat);
 
@@ -477,7 +513,8 @@ public class AnimationMeshGenerator : EditorWindow
 
 
         // Set new Bounds 
-        bounds.SetMinMax(rootRelMin, rootRelMax);
+        Debug.Log("##############" + boundsScale);
+        bounds.SetMinMax(rootRelMin * boundsScale, rootRelMax * boundsScale);
         mesh.bounds = bounds;
 
         texture.SetPixels(pixels);
