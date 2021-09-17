@@ -513,7 +513,6 @@ public class AnimationMeshGenerator : EditorWindow
 
 
         // Set new Bounds 
-        Debug.Log("##############" + boundsScale);
         bounds.SetMinMax(rootRelMin * boundsScale, rootRelMax * boundsScale);
         mesh.bounds = bounds;
 
