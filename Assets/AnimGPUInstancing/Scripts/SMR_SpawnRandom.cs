@@ -4,13 +4,12 @@ using VRC.SDKBase;
 using VRC.Udon;
 using System;
 
-public class AGI_SpawnRandom : UdonSharpBehaviour
+public class SMR_SpawnRandom : UdonSharpBehaviour
 {
     [Header("-----------------------------")]
     [Header("General Parameters")]
     [Header("-----------------------------")]
     [SerializeField] private GameObject animCharacter;
-    [SerializeField] private AnimationFrameInfoList animationFrameInfoList;
 
     [Space(10)]
     [Header("-----------------------------")]
@@ -37,37 +36,30 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
     [Tooltip("(x) Min ~ (y) Max")]
     [SerializeField] private Vector2 RandomScale = new Vector2(0.8f, 1.2f);
 
-
-    [Header("-----------------------------")]
-    [Header("Apply Root Motion for Locomotion")]
-    [Header("-----------------------------")]
-    [Tooltip("True for Locomotion")]
-    [SerializeField] private bool ApplyRootMotion = false;
-
-    [Tooltip("How Many Repeats to Move")]
-    [SerializeField] private int RepeatNum = 10;
-
+    [Space(10)]
+    [SerializeField] private string[] animationNames;
 
     private GameObject[] characters = new GameObject[1000];
 
 
+    // Start is called before the first frame update
     void Start()
     {
-
         for (int i = 0; i < SpawnNum; i++)
         {
 
             characters[i] = GenerateCharacter();
-            
+
             if (i > characters.Length) return;
         }
 
     }
 
-    private void Update()
+    // Update is called once per frame
+    void Update()
     {
+        
     }
-
 
     public GameObject GenerateCharacter()
     {
@@ -81,9 +73,9 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
         Quaternion quat_yaw = Quaternion.Euler(new Vector3(0.0f, angle_yaw, 0.0f));
 
         Vector3 targetPos = new Vector3(
-            UnityEngine.Random.Range(- RandomX, RandomX),
-            UnityEngine.Random.Range(- RandomY, RandomY),
-            UnityEngine.Random.Range(- RandomZ, RandomZ)
+            UnityEngine.Random.Range(-RandomX, RandomX),
+            UnityEngine.Random.Range(-RandomY, RandomY),
+            UnityEngine.Random.Range(-RandomZ, RandomZ)
         );
 
         targetPos += this.transform.position;
@@ -92,29 +84,37 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
 
         go.transform.SetParent(this.transform);
 
-        var idx = UnityEngine.Random.Range(0, animationFrameInfoList.FrameInfo.Length);
-        Vector4 frameInfo = animationFrameInfoList.FrameInfo[idx];
-
-        MaterialPropertyBlock props = new MaterialPropertyBlock();
-        // props.SetColor("_Color", new Color(Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f)));
-        props.SetFloat("_OffsetSeconds", UnityEngine.Random.Range(0.0f, frameInfo[1] - 1));
-        props.SetFloat("_StartFrame", frameInfo[0]);
-        props.SetFloat("_FrameCount", frameInfo[1]);
-
-        // Repeat
-        props.SetFloat("_ROOT_MOTION", (ApplyRootMotion) ? 1.0f : 0.0f);
-        props.SetFloat("_RepeatStartFrame", frameInfo[2]);
-        props.SetFloat("_RepeatNum", Mathf.Min(frameInfo[3], RepeatNum));
-
-        MeshRenderer[] meshRenderers = go.GetComponentsInChildren<MeshRenderer>();
-        foreach(var meshRenderer in meshRenderers)
+        var idx = UnityEngine.Random.Range(0, animationNames.Length);
+        Animator animator = go.GetComponent<Animator>();
+        if (animator != null)
         {
-            meshRenderer.SetPropertyBlock(props);
+            animator.Play(animationNames[idx]);
         }
+
+        //var idx = UnityEngine.Random.Range(0, animationFrameInfoList.FrameInfo.Length);
+        //Vector4 frameInfo = animationFrameInfoList.FrameInfo[idx];
+
+        //MaterialPropertyBlock props = new MaterialPropertyBlock();
+        //// props.SetColor("_Color", new Color(Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f)));
+        //props.SetFloat("_OffsetSeconds", UnityEngine.Random.Range(0.0f, frameInfo[1] - 1));
+        //props.SetFloat("_StartFrame", frameInfo[0]);
+        //props.SetFloat("_FrameCount", frameInfo[1]);
+
+        //// Repeat
+        //props.SetFloat("_ROOT_MOTION", (ApplyRootMotion) ? 1.0f : 0.0f);
+        //props.SetFloat("_RepeatStartFrame", frameInfo[2]);
+        //props.SetFloat("_RepeatNum", Mathf.Min(frameInfo[3], RepeatNum));
+
+        //MeshRenderer[] meshRenderers = go.GetComponentsInChildren<MeshRenderer>();
+        //foreach (var meshRenderer in meshRenderers)
+        //{
+        //    meshRenderer.SetPropertyBlock(props);
+        //}
 
         //MeshRenderer meshRenderer = go.GetComponent<MeshRenderer>();
 
         return go;
     }
-}
 
+
+}

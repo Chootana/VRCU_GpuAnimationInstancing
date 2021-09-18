@@ -569,7 +569,7 @@ public class AnimationMeshGenerator : EditorWindow
             materials[i].SetFloat("_PixelsPerFrame", pixelsPerFrame);
             materials[i].enableInstancing = true;
 
-            materials[i].SetTexture("_AnimRepeatTex", texRepeat);
+            materials[i].SetTexture("_RepeatTex", texRepeat);
             materials[i].SetFloat("_RepeatMax", MaxRepeat);
 
         }
