@@ -11,11 +11,11 @@ float4 GetUV(uint index, float4 texelSize)
 
 float4x4 GetMatrix(uint startIndex, float boneIndex, sampler2D tex, float4 texelSize)
 {
-    uint matrixIndex = startIndex + boneIndex * 3;
+    uint index = startIndex + boneIndex * 3;
 
-    float4 row0 = tex2Dlod(tex, GetUV(matrixIndex, texelSize));
-    float4 row1 = tex2Dlod(tex, GetUV(matrixIndex + 1, texelSize));
-    float4 row2 = tex2Dlod(tex, GetUV(matrixIndex + 2, texelSize));
+    float4 row0 = tex2Dlod(tex, GetUV(index, texelSize));
+    float4 row1 = tex2Dlod(tex, GetUV(index + 1, texelSize));
+    float4 row2 = tex2Dlod(tex, GetUV(index + 2, texelSize));
     float4 row3 = float4(0.0, 0.0, 0.0, 1.0);
 
     return float4x4(row0, row1, row2, row3);

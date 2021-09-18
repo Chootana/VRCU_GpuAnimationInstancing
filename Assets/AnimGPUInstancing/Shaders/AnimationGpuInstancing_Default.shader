@@ -13,7 +13,7 @@
         _StartFrame("Start Frame", Float) = 0 
         _FrameCount("Frame Count", Float) = 1 
         _OffsetSeconds("Offset Seconds", Float) = 0 
-        _PixelCountPerFrame("Pixel Count Per Frame", Float) = 0 
+        _PixelsPerFrame("Pixels Per Frame", Float) = 0 
 
 
         [Toggle]
@@ -100,7 +100,7 @@
 
     sampler2D _RepeatTex;
     float4 _RepeatTex_TexelSize;
-    uint _PixelCountPerFrame;  
+    uint _PixelsPerFrame;  
 
     uint _RepeatMax;   
 
@@ -125,24 +125,24 @@
         uint offsetFrame = (uint)((time + offsetSeconds) * 30.0);
         uint currentFrame = startFrame + offsetFrame % frameCount;
 
-        uint clampedIndex = currentFrame * _PixelCountPerFrame;
-        float4x4 bone1Matrix = GetMatrix(clampedIndex, v.boneIndex.x, _AnimTex, _AnimTex_TexelSize);
-        float4x4 bone2Matrix = GetMatrix(clampedIndex, v.boneIndex.y, _AnimTex, _AnimTex_TexelSize);
-        float4x4 bone3Matrix = GetMatrix(clampedIndex, v.boneIndex.z, _AnimTex, _AnimTex_TexelSize);
-        float4x4 bone4Matrix = GetMatrix(clampedIndex, v.boneIndex.w, _AnimTex, _AnimTex_TexelSize);
+        uint clampedIndex = currentFrame * _PixelsPerFrame;
+        float4x4 bone1Mat = GetMatrix(clampedIndex, v.boneIndex.x, _AnimTex, _AnimTex_TexelSize);
+        float4x4 bone2Mat = GetMatrix(clampedIndex, v.boneIndex.y, _AnimTex, _AnimTex_TexelSize);
+        float4x4 bone3Mat = GetMatrix(clampedIndex, v.boneIndex.z, _AnimTex, _AnimTex_TexelSize);
+        float4x4 bone4Mat = GetMatrix(clampedIndex, v.boneIndex.w, _AnimTex, _AnimTex_TexelSize);
 
         float4 pos = 
-            mul(bone1Matrix, v.vertex) * v.boneWeight.x + 
-            mul(bone2Matrix, v.vertex) * v.boneWeight.y + 
-            mul(bone3Matrix, v.vertex) * v.boneWeight.z + 
-            mul(bone4Matrix, v.vertex) * v.boneWeight.w;
+            mul(bone1Mat, v.vertex) * v.boneWeight.x + 
+            mul(bone2Mat, v.vertex) * v.boneWeight.y + 
+            mul(bone3Mat, v.vertex) * v.boneWeight.z + 
+            mul(bone4Mat, v.vertex) * v.boneWeight.w;
 
 
         float4 normal = 
-            mul(bone1Matrix, v.normal) * v.boneWeight.x +  
-            mul(bone2Matrix, v.normal) * v.boneWeight.y +  
-            mul(bone3Matrix, v.normal) * v.boneWeight.z+  
-            mul(bone4Matrix, v.normal) * v.boneWeight.w;  
+            mul(bone1Mat, v.normal) * v.boneWeight.x +  
+            mul(bone2Mat, v.normal) * v.boneWeight.y +  
+            mul(bone3Mat, v.normal) * v.boneWeight.z+  
+            mul(bone4Mat, v.normal) * v.boneWeight.w;  
 
 
         uint _root_motion = UNITY_ACCESS_INSTANCED_PROP(_ROOT_MOTION_arr, _ROOT_MOTION);
@@ -152,13 +152,13 @@
         uint currentRepeatIndex =  (uint)(offsetFrame / frameCount) % repeatNum;
         uint currentRepeatFrame = (currentRepeatIndex == 0)? 0 :  repeatStartFrame + currentRepeatIndex - 1;
         uint clampedRepeatIndex = currentRepeatFrame * 3;
-        float4x4 rootMatrix = GetMatrix(clampedRepeatIndex, 0, _RepeatTex, _RepeatTex_TexelSize);
+        float4x4 rootMat = GetMatrix(clampedRepeatIndex, 0, _RepeatTex, _RepeatTex_TexelSize);
 
-        rootMatrix = (_root_motion) ? rootMatrix : Mat4x4Identity;
+        rootMat = (_root_motion) ? rootMat : Mat4x4Identity;
 
 
-        pos = mul(rootMatrix, pos);
-        normal = mul(rootMatrix, normal);
+        pos = mul(rootMat, pos);
+        normal = mul(rootMat, normal);
 
         o.vertex = UnityObjectToClipPos(pos);
         UNITY_TRANSFER_FOG(o,o.vertex);

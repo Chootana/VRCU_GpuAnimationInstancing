@@ -14,7 +14,7 @@ public class AGI_ShaderInspector : ShaderGUI
     MaterialProperty startFrame;
     MaterialProperty frameCount;
     MaterialProperty offsetSeconds;
-    MaterialProperty pixelCountPerFrame;
+    MaterialProperty pixelsPerFrame;
 
     MaterialProperty isRootMotion;
     MaterialProperty repeatTex;
@@ -43,7 +43,7 @@ public class AGI_ShaderInspector : ShaderGUI
         startFrame = FindProperty("_StartFrame", props);
         frameCount = FindProperty("_FrameCount", props);
         offsetSeconds = FindProperty("_OffsetSeconds", props);
-        pixelCountPerFrame = FindProperty("_PixelCountPerFrame", props);
+        pixelsPerFrame = FindProperty("_PixelsPerFrame", props);
 
         isRootMotion = FindProperty("_ROOT_MOTION", props);
         repeatTex = FindProperty("_RepeatTex", props);
@@ -77,7 +77,7 @@ public class AGI_ShaderInspector : ShaderGUI
         materialEditor.ShaderProperty(startFrame, startFrame.displayName);
         materialEditor.ShaderProperty(frameCount, frameCount.displayName);
         materialEditor.ShaderProperty(offsetSeconds, offsetSeconds.displayName);
-        materialEditor.ShaderProperty(pixelCountPerFrame, pixelCountPerFrame.displayName);
+        materialEditor.ShaderProperty(pixelsPerFrame, pixelsPerFrame.displayName);
 
         EditorGUI.indentLevel--;
 

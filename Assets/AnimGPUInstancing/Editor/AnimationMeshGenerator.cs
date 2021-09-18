@@ -329,18 +329,18 @@ public class AnimationMeshGenerator : EditorWindow
         foreach (SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRenderers)
         {
 
-            int pixelCountPerFrame = BoneMatrixRowCount * skinnedMeshRenderer.bones.Length;
+            int pixelsPerFrame = BoneMatrixRowCount * skinnedMeshRenderer.bones.Length;
 
             // Mesh Renderer 
             Mesh animMesh = SkinnedMesh2BoneWeightedMesh(skinnedMeshRenderer);
 
             // Animation Texture 
-            Texture animTexture = GenerateAnimationTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo);
-            Texture animRepeatTexture = GenerateAnimationRepeatTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelCountPerFrame, ref animationInfo, ref animMesh, boundsScale);
+            Texture animTexture = GenerateAnimationTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelsPerFrame, ref animationInfo);
+            Texture animRepeatTexture = GenerateAnimationRepeatTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelsPerFrame, ref animationInfo, ref animMesh, boundsScale);
 
 
             // Material 
-            Material[] animMaterials = GenerateMaterials(targetObject, skinnedMeshRenderer, animTexture, animRepeatTexture, animShader, clips, pixelCountPerFrame);
+            Material[] animMaterials = GenerateMaterials(targetObject, skinnedMeshRenderer, animTexture, animRepeatTexture, animShader, clips.ToList(), pixelsPerFrame);
 
             // Save Each Asset 
             AssetDatabase.CreateAsset(animMesh, string.Format($"{savePathMesh}/AnimMesh_{skinnedMeshRenderer.name}.asset"));
@@ -386,7 +386,7 @@ public class AnimationMeshGenerator : EditorWindow
 
     }
 
-    private static Texture GenerateAnimationTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelCountPerFrame, ref Vector4[] animationInfo)
+    private static Texture GenerateAnimationTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelsPerFrame, ref Vector4[] animationInfo)
     {
         Vector2 texBoundary = CalculateTextureBoundary(clips, smr.bones.Count());
 
@@ -427,7 +427,6 @@ public class AnimationMeshGenerator : EditorWindow
 
             }
 
-          
             int frameCount = totalFrame;
             int startFrame = currentClipFrame + 1;
             int endFrame = startFrame + frameCount - 1;
@@ -437,14 +436,13 @@ public class AnimationMeshGenerator : EditorWindow
 
         }
 
-
         texture.SetPixels(pixels);
         texture.Apply();
         texture.filterMode = FilterMode.Point;
         return texture;
     }
 
-    private static Texture GenerateAnimationRepeatTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelCountPerFrame, ref Vector4[] animationInfo, ref Mesh mesh, float boundsScale)
+    private static Texture GenerateAnimationRepeatTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelsPerFrame, ref Vector4[] animationInfo, ref Mesh mesh, float boundsScale)
     {
         Vector2 texBoundary = CalculateRepeatTextureBoundary(clips, MaxRepeat);
 
@@ -523,7 +521,7 @@ public class AnimationMeshGenerator : EditorWindow
         return texture;
     }
 
-    private static Vector2 CalculateTextureBoundary(IEnumerable<AnimationClip> clips, int boneLength)
+    private static Vector2 CalculateTextureBoundary(List<AnimationClip> clips, int boneLength)
     {
         int boneMatrixCount = BoneMatrixRowCount * boneLength;
 
@@ -542,7 +540,7 @@ public class AnimationMeshGenerator : EditorWindow
 
     }
 
-    private static Vector2 CalculateRepeatTextureBoundary(IEnumerable<AnimationClip> clips, int maxRepeat)
+    private static Vector2 CalculateRepeatTextureBoundary(List<AnimationClip> clips, int maxRepeat)
     {
         int totalPiexes = 1 + clips.Count() * BoneMatrixRowCount * MaxRepeat;
         int texWidth = 1;
@@ -558,7 +556,7 @@ public class AnimationMeshGenerator : EditorWindow
 
     }
 
-    private static Material[] GenerateMaterials(GameObject go, SkinnedMeshRenderer smr, Texture tex, Texture texRepeat, Shader shader, IEnumerable<AnimationClip> clips, int pixelCountPerFrame)
+    private static Material[] GenerateMaterials(GameObject go, SkinnedMeshRenderer smr, Texture tex, Texture texRepeat, Shader shader, List<AnimationClip> clips, int pixelsPerFrame)
     {
         Material[] materials = new Material[smr.sharedMaterials.Length];
 
@@ -568,7 +566,7 @@ public class AnimationMeshGenerator : EditorWindow
             materials[i].name = smr.sharedMaterials[i].name;
             materials[i].shader = shader;
             materials[i].SetTexture("_AnimTex", tex);
-            materials[i].SetFloat("_PixelCountPerFrame", pixelCountPerFrame);
+            materials[i].SetFloat("_PixelsPerFrame", pixelsPerFrame);
             materials[i].enableInstancing = true;
 
             materials[i].SetTexture("_AnimRepeatTex", texRepeat);
@@ -585,8 +583,6 @@ public class AnimationMeshGenerator : EditorWindow
         animObject.name = mesh.name;
 
         MeshFilter mf = animObject.AddComponent<MeshFilter>();
-
-
         mf.mesh = mesh;
 
         MeshRenderer mr = animObject.AddComponent<MeshRenderer>();
@@ -594,7 +590,6 @@ public class AnimationMeshGenerator : EditorWindow
         mr.motionVectorGenerationMode = MotionVectorGenerationMode.ForceNoMotion;
         mr.reflectionProbeUsage = ReflectionProbeUsage.Off;
         mr.lightProbeUsage = LightProbeUsage.Off;
-
 
         animObject.transform.SetParent(parentObject.transform);
     }
