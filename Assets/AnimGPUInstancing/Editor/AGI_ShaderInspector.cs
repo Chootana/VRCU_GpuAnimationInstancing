@@ -26,6 +26,7 @@ public class AGI_ShaderInspector : ShaderGUI
     MaterialProperty isLighting;
     MaterialProperty shininess;
     MaterialProperty bumpMap;
+
     #endregion
 
 
@@ -55,8 +56,8 @@ public class AGI_ShaderInspector : ShaderGUI
         shininess = FindProperty("_Shininess", props);
         bumpMap = FindProperty("_BumpMap", props);
 
+        MaterialProperty instancing = FindProperty("_INSTANCING", props);
         /* *** *** *** */
-
 
         // materialEditor.ShaderProperty(mainTexProps, mainTexProps.displayName);
         materialEditor.TexturePropertySingleLine(new GUIContent("Main Texture"), mainTex, color);
@@ -99,6 +100,7 @@ public class AGI_ShaderInspector : ShaderGUI
 
 
         /* *** Lighting *** */
+
         materialEditor.ShaderProperty(isLighting, isLighting.displayName);
         EditorGUI.indentLevel++;
         if (isLighting.floatValue == 1f)
@@ -112,6 +114,15 @@ public class AGI_ShaderInspector : ShaderGUI
 
         }
         EditorGUI.indentLevel--;
+        EditorGUILayout.Space();
+
+        /* *** GPU Instancing *** */
+        materialEditor.ShaderProperty(instancing, "Enable GPU Instancing");
+        if (instancing.floatValue == 1f) material.enableInstancing = true;
+        else material.enableInstancing = false;
+
+
+
 
     }
 }

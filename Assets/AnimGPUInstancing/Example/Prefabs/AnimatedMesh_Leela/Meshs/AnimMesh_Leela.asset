@@ -457,8 +457,8 @@ Mesh:
       m_BitSize: 0
     m_UVInfo: 0
   m_LocalAABB:
-    m_Center: {x: 64.75414, y: -1.3414373, z: 8.720332}
-    m_Extent: {x: 64.77125, y: 1.35184, z: 8.720523}
+    m_Center: {x: 0.1541618, y: -1.3414373, z: 8.720332}
+    m_Extent: {x: 0.1712677, y: 1.35184, z: 8.720523}
   m_MeshUsageFlags: 0
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 

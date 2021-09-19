@@ -211,7 +211,7 @@
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
-            #pragma multi_compile_instancing
+            #pragma multi_compile_instancing 
             #pragma target 4.5
             #pragma shader_feature _LIGHTING_UNLIT _LIGHTING_REAL
 

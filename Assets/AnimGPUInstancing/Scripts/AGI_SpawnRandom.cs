@@ -112,7 +112,6 @@ public class AGI_SpawnRandom : UdonSharpBehaviour
             meshRenderer.SetPropertyBlock(props);
         }
 
-        //MeshRenderer meshRenderer = go.GetComponent<MeshRenderer>();
 
         return go;
     }

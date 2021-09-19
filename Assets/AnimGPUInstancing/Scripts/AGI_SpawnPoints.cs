@@ -78,10 +78,9 @@ public class AGI_SpawnPoints : UdonSharpBehaviour
 
         Vector4 frameInfo = animationFrameInfoList.FrameInfo[animID];
 
-        // var randomColor = new Color(Random.Range(0.00f, 1.00f), Random.Range(0.00f, 1.00f), Random.Range(0.00f, 1.00f), 1);
 
         MaterialPropertyBlock props = new MaterialPropertyBlock();
-        // props.SetColor("_Color", randomColor);
+        // props.SetColor("_Color", new Color(Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f), Random.Range(0.9f, 1.0f)));
         props.SetFloat("_OffsetSeconds", UnityEngine.Random.Range(0.0f, frameInfo[1] - 1));
         props.SetFloat("_StartFrame", frameInfo[0]);
         props.SetFloat("_FrameCount", frameInfo[1]);
@@ -91,8 +90,12 @@ public class AGI_SpawnPoints : UdonSharpBehaviour
         props.SetFloat("_RepeatStartFrame", frameInfo[2]);
         props.SetFloat("_RepeatNum", Mathf.Min(frameInfo[3], RepeatNum));
 
-        MeshRenderer meshRenderer = go.GetComponent<MeshRenderer>();
-        meshRenderer.SetPropertyBlock(props);
+        MeshRenderer[] meshRenderers = go.GetComponentsInChildren<MeshRenderer>();
+        foreach (var meshRenderer in meshRenderers)
+        {
+            meshRenderer.SetPropertyBlock(props);
+        }
+
 
         return go;
     }
