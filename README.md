@@ -32,52 +32,14 @@
 
 # Usage 
 
-ここも複数のmdに分けよう
-1. 基本操作
-2. ランダムスポーン 
-3. ランダムスポーン(歩行) 
-4. 特定位置にスポーン
+1. [基本操作](Documents/usage_basic.md)
+2. [ランダムにスポーンさせる場合](Documents/usage_random_spawn.md)
+3. [ランダムにスポーンさせる場合（歩行）](Documents/usage_random_spawn_locomotion.md)
+4. [特定位置にスポーンさせる場合](Documents/usage_points_spawn.md) 
 
-
-## SMR -> Animated MRに変換する方法
-1. SMR と　Animatorを　用意
-2. udon prefabを付ける
-3. prefab化する
-4. エディタ拡張を開く
-5. prefabを選択する
-6. Convertする
-7. prefabのPathにAnim~~~ができている
-8. anim prefabをSceneに置く
-9.  Materialの数値をいじる
-10. 動いていればOK
-
-## InstancingしてVRCに持ち込む方法
-1. AGI_~~~prefabをsceneに置く
-2. anim prefab を選択にする
-3. パラメータをもろもろいじる
-4. VRC Worldなどを置いてUpload 
 
 # Note 
-
-## SMRの数について 
-1 SMR 推奨
-複数のSMRを持つアバターでも変換可能だが，その分負荷は大きくなる
-
-## 用意してるShader説明 
-- Base: Unlit風
-- Base_Shader: Unlit風 + Cast Shadow対応（その分負荷が高まります）
-
-
-## カスタムシェーダー
-- カスタムshaderを使用可能
-  - AnimGPUInstancing/Shadersフォルダに置く
-
-
-## できないこと
-- VRCInstancingのランダムスポーンはローカルのためプレイヤーごとに同期していない
-- 特定スポーンなら位置とアニメーションの種類はある程度制御できるが完全ではない
-- Boundsが固定（Mesh自体は動いていないため）．シューティングやバトル用のモブキャラには非対応
-
+- [その他・注意点](Documents/note.md)
 
 
 # Author 
