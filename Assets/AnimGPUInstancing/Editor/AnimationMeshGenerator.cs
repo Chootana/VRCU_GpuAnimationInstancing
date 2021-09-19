@@ -290,8 +290,6 @@ public class AnimationMeshGenerator : EditorWindow
 
         /* *** *** *** */
 
-        /* *** Scroll End *** */
-        EditorGUILayout.EndScrollView();
 
 
         /* *** Button **** */
@@ -305,6 +303,9 @@ public class AnimationMeshGenerator : EditorWindow
             GUI.backgroundColor = defaultColor;
         }
         /* *** *** *** */
+
+        /* *** Scroll End *** */
+        EditorGUILayout.EndScrollView();
     }
 
     void Convert()
