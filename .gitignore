@@ -60,6 +60,7 @@ crashlytics-build.properties
 
 .vsconfig
 Recordings*
+Release*
 
 Assets/CyanEmu*
 Assets/Editor*
