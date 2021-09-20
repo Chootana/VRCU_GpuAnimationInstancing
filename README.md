@@ -42,7 +42,7 @@ SkinnedMeshRenderer + Animator -> MeshRenderer + Animation Texture + (専用Shad
 〇〇リンクのunitypackageをインストール
 (もしくはBoothからダウンロード)
 
-VRCU_AnimationGPUInstancing_v###.unitypackageをUnity Projectにインストールする．
+VRCU_AnimationGPUInstancing.unitypackageをUnity Projectにインストールする．
 
 Extention ToolにAnimationGPUInstancingが現れるのでクリック
 
@@ -50,7 +50,7 @@ Extention ToolにAnimationGPUInstancingが現れるのでクリック
 
 1. [基本操作](Documents/usage_basic.md)
 2. [ランダムにスポーンさせる場合](Documents/usage_random_spawn.md)
-3. [ランダムにスポーンさせる場合（歩行）](Documents/usage_random_spawn_locomotion.md)
+3. [歩行モーションをスポーンさせる場合](Documents/usage_locomotion_spawn.md)
 4. [特定位置にスポーンさせる場合](Documents/usage_points_spawn.md) 
 
 
