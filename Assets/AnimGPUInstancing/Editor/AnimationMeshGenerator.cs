@@ -20,8 +20,6 @@ public class AnimationMeshGenerator : EditorWindow
     private const int TargetFrameRate = 30;
 
 
-    // User Parameters 
-    private const int MaxRepeat = 20;
 
 
     // Components 
@@ -33,6 +31,7 @@ public class AnimationMeshGenerator : EditorWindow
     private GameObject goUdon;
     private UdonBehaviour udonBehaviour;
     private float boundsScale = 1.0f;
+    private int MaxRepeat = 20;
     private string saveName = "AnimatedMesh";
     private string savePath;
 
@@ -244,6 +243,13 @@ public class AnimationMeshGenerator : EditorWindow
 
             }
 
+            MaxRepeat = EditorGUILayout.IntField("Max Repeat Num", MaxRepeat);
+            if (MaxRepeat < 1)
+            {
+                EditorGUILayout.HelpBox($"Not Support Value, Max Repeat: {MaxRepeat} ", MessageType.Error);
+                return;
+            }
+
             GUI.backgroundColor = defaultColor;
 
 
@@ -253,6 +259,8 @@ public class AnimationMeshGenerator : EditorWindow
 
         GUILayout.Label("", EditorStyles.boldLabel);
         /* *** *** *** */
+
+
 
         /* *** Path **** */
         defaultColor = GUI.backgroundColor;
@@ -337,11 +345,11 @@ public class AnimationMeshGenerator : EditorWindow
 
             // Animation Texture 
             Texture animTexture = GenerateAnimationTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelsPerFrame, ref animationInfo);
-            Texture animRepeatTexture = GenerateAnimationRepeatTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelsPerFrame, ref animationInfo, ref animMesh, boundsScale);
+            Texture animRepeatTexture = GenerateAnimationRepeatTexture(targetObject, clips.ToList(), skinnedMeshRenderer, pixelsPerFrame, ref animationInfo, ref animMesh, boundsScale, MaxRepeat);
 
 
             // Material 
-            Material[] animMaterials = GenerateMaterials(targetObject, skinnedMeshRenderer, animTexture, animRepeatTexture, animShader, clips.ToList(), pixelsPerFrame);
+            Material[] animMaterials = GenerateMaterials(targetObject, skinnedMeshRenderer, animTexture, animRepeatTexture, animShader, clips.ToList(), pixelsPerFrame, MaxRepeat);
 
             // Save Each Asset 
             AssetDatabase.CreateAsset(animMesh, string.Format($"{savePathMesh}/AnimMesh_{skinnedMeshRenderer.name}.asset"));
@@ -443,7 +451,7 @@ public class AnimationMeshGenerator : EditorWindow
         return texture;
     }
 
-    private static Texture GenerateAnimationRepeatTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelsPerFrame, ref Vector4[] animationInfo, ref Mesh mesh, float boundsScale)
+    private static Texture GenerateAnimationRepeatTexture(GameObject go, List<AnimationClip> clips, SkinnedMeshRenderer smr, int pixelsPerFrame, ref Vector4[] animationInfo, ref Mesh mesh, float boundsScale, int MaxRepeat)
     {
         Vector2 texBoundary = CalculateRepeatTextureBoundary(clips, MaxRepeat);
 
@@ -541,7 +549,7 @@ public class AnimationMeshGenerator : EditorWindow
 
     }
 
-    private static Vector2 CalculateRepeatTextureBoundary(List<AnimationClip> clips, int maxRepeat)
+    private static Vector2 CalculateRepeatTextureBoundary(List<AnimationClip> clips, int MaxRepeat)
     {
         int totalPiexes = 1 + clips.Count() * BoneMatrixRowCount * MaxRepeat;
         int texWidth = 1;
@@ -557,7 +565,7 @@ public class AnimationMeshGenerator : EditorWindow
 
     }
 
-    private static Material[] GenerateMaterials(GameObject go, SkinnedMeshRenderer smr, Texture tex, Texture texRepeat, Shader shader, List<AnimationClip> clips, int pixelsPerFrame)
+    private static Material[] GenerateMaterials(GameObject go, SkinnedMeshRenderer smr, Texture tex, Texture texRepeat, Shader shader, List<AnimationClip> clips, int pixelsPerFrame, int MaxRepeat)
     {
         Material[] materials = new Material[smr.sharedMaterials.Length];
 

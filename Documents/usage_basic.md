@@ -1,15 +1,15 @@
 # Usage - 基本操作
 
 ## Animation Mesh Generator (Unityエディタ拡張)を開く
-- VRCU_AnimationGPUInstancing_v###.unitypackageをProjectにインストール後，
-上記タブの中にWindow/Extension Tools/Animation Mesh Generatorをクリックする．
+- VRCU_AnimationGPUInstancing.unitypackageをProjectにインストール後，
+上記タブの中にあるWindow/Extension Tools/Animation Mesh Generatorをクリックする．
 
     ![image](https://user-images.githubusercontent.com/44863813/133994399-beb9b4f5-660f-4171-9109-8c2f7de3f7d0.png)
 
 ## インスタンシングしたいキャラクターを準備する
 1. SkinnedMeshRendererを持ったキャラクターをHierarchyに置く．
   - 今回は[Space Robot Kyle](https://assetstore.unity.com/packages/3d/characters/robots/space-robot-kyle-4696?locale=ja-JP)を使う(使いやすくておススメ)
-  - もしprefabしたオブジェクトだったら，"Unpack prefab"しておく（中身に追加するため）． 
+  - もしprefabしたオブジェクトだったら，"Unpack prefab"しておく． 
 
 2. Animatorを1.のキャラクターに追加する
    - 一番上の階層に追加すればOK
@@ -46,19 +46,19 @@
 7. 設定を確認後,Convertをクリック
     - 5のディレクトリ内に変換されたprefabやマテリアルなどが作成される．
 
-8. 作成された〇〇_Anim.prefabをHierarchyにD&Dする．
+8. 作成されたRobot Kyle_Anim.prefabをHierarchyにD&Dする．
 
 ## 動作確認
 - Robot Kyle.prefabを変換したRobot Kyle_Anim.prefabにUdon Behabiourが追加されている．これは4で追加したAnimationFrameInfoListにアニメーションの情報を書き込まれたものである．
 - Frame InfoのサイズはAnimation Clipsの数に対応する．
-- 各ClipにVector4形式で値が格納されている．それぞれ[Start Frame，Frame Count，Repeat Start Frame，Repeat Max]であり，マテリアルの設定で使用する．
+- 各アニメーションの情報がVector4形式で値が格納されている．それぞれ[Start Frame，Frame Count，Repeat Start Frame，Repeat Max]であり，マテリアルの設定で使用する．
 
     ![image](https://user-images.githubusercontent.com/44863813/133998525-248b656f-5ea6-4742-85ca-b3f3b082e373.png)
 
-- 一つ下の階層のMeshRendererに付随するマテリアルに各種アニメーション用パラメータを与える．今回はWaveのパラメータを入力してみる(Repeat ~~の値は無視して良い)
+- 一つ下の階層のMeshRendererに付随するマテリアルに各種アニメーション用パラメータを与える．今回は１つめのアニメーションの[Start Frame, Frame Count]してみる(Repeat ~~のApply Root Motionする時に必要)
 
     ![image](https://user-images.githubusercontent.com/44863813/134000330-c282ec53-4484-4c12-96a3-3c62583d34de.png)
 
 - 実行ボタンを押した際にアニメーションが再生されていればOK
 
-    ![robot_basic_001](https://user-images.githubusercontent.com/44863813/134000474-106de3b6-0dc8-4a65-9e2c-8c91a18c47c0.gif)
+    ![robot_basic_3](https://user-images.githubusercontent.com/44863813/134001845-17c29ad5-c98e-4660-b0e7-1abcefbb3339.gif)

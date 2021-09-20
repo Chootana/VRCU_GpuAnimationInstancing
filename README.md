@@ -2,9 +2,7 @@
 
 ## SkinnedMeshRendererをGPU instancing対応させる変換ツール
 
-SkinnedMeshRenderer + Animator -> MeshRenderer + Animation Texture + (専用Shader) に変換することで
-
-作成したキャラクターとアニメーションをそのままインスタンシング化できる．
+SkinnedMeshRenderer + Animator -> MeshRenderer + Animation Texture + (専用Shader) に変換することで，使用したいキャラクターとアニメーションをそのままインスタンシング化できる．
 
 <img src="https://user-images.githubusercontent.com/44863813/133965049-96d3a891-808c-4d8c-8f3a-54d47092db81.gif" width="960" title="SKM_MR">
 
