@@ -9,7 +9,7 @@ BOOTHでサンプル付きを購入された方は既にセットアップ済み
 （100体クローン，位置・回転・スケールのランダム設定，3つのアニメーションランダム再生）
 
 ## インスタンシングしたいキャラクターを準備する
-- [基本操作](Documents/usage_basic.md)参照
+- [基本操作](usage_basic.md)参照
 
 ## AGI_SpawnRandom.prefabをHierarchyに置く
 ![image](https://user-images.githubusercontent.com/44863813/134011195-a4e825b2-f04c-440b-855f-57a8064408fa.png)
