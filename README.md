@@ -39,12 +39,10 @@ SkinnedMeshRenderer + Animator -> MeshRenderer + Animation Texture + (専用Shad
 - Udon Sharp: 0.20.2
 
 # Usage 
-〇〇リンクのunitypackageをインストール
-(もしくはBoothからダウンロード)
+(WIP) ReleaseからVRCU_AnimationGPUInstancingをインストール
+(WIP）(もしくはBoothからダウンロード)
 
 VRCU_AnimationGPUInstancing.unitypackageをUnity Projectにインストールする．
-
-Extention ToolにAnimationGPUInstancingが現れるのでクリック
 
 使い方は以下を参照
 
