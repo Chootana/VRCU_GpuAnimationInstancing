@@ -1,6 +1,6 @@
-# VRC Animation GPU Instancing 
+# VRC Animation GPU Instancing (AGI)
 
-**SkinnedMeshRendererのアニメーションをGPU instancing対応させる変換ツール**
+## SkinnedMeshRendererをGPU instancing対応させる変換ツール
 
 SkinnedMeshRenderer + Animator -> MeshRenderer + Animation Texture + (専用Shader) に変換することで
 
@@ -10,32 +10,39 @@ SkinnedMeshRenderer + Animator -> MeshRenderer + Animation Texture + (専用Shad
 
 
 # DEMO
-VRChatのワールドでロポリコンちゃんを100体描画した時．
 
-<img src="https://user-images.githubusercontent.com/44863813/131253241-79397313-9fe3-4cd4-bf86-10806afd6720.gif" width="960" title="demo">
+## [ロポリこんちゃん](https://booth.pm/ja/items/1415037)を1000体描画させたケース
+1. SkinnedMeshRendererのまま1000体描画 -> Draw Callsがおよそ1000程度で40FPSになる．
+<img src="https://user-images.githubusercontent.com/44863813/133979006-106f1484-8380-4bf7-83dc-c38314356e7b.png" width="960" title="smr_statistics">
+<img src="https://user-images.githubusercontent.com/44863813/133979371-2180725b-1f4e-4f91-95b9-16011e88b86b.png" width="960" title="smr_debugger">
+
+2. GPU Instancing対応させた後1000描画 -> Draw Callsはおよそ10程度まで下がり，FPSも大幅に改善させる
+<img src="https://user-images.githubusercontent.com/44863813/133979595-1e71ef8b-8ee4-4069-9cc3-7fc3f2981d34.png" width="960" title="agi_statistics">
+<img src="https://user-images.githubusercontent.com/44863813/133979647-d4c5b899-97dd-4747-af42-f8f078562cb8.png" width="960" title="agi_debugger">
+
 
 # Features 
 - VRChat対応 (Udon Sharp)
 - Quest対応
 - Animation Clips 複数対応
-- Apply root motion対応（歩行モーションに合わせて全体が移動する）
-- BOOTHでセットアップ済みのSAMPLEを用意(VRChat上でそのまま確認できる)
 - 複数SkinnedMeshRendererを持つキャラクターに対応
+- Apply root motion対応（歩行モーションに合わせてアニメーションが移動する）
+- BOOTHでセットアップ済みのSAMPLEを用意(VRChat上でそのまま確認できる)
 
 # Theory
 - ArmatureとVertexとAnimation情報をAnimation Textureに書き込んで保持
-- メモリ軽量のためRoot移動は別Repeat Textureに保持
+- Root移動の情報は別のRepeat Textureに保持（メモリ軽量化）
 - 二つのTextureをshader側で読み込むことでmeshをshader側で動かす
 
 # Requirement 
-以下の環境で動作確認している
+以下の環境で動作確認済み
 - Unity: 2019.4.29f1
 - VRCSDK3 World: 2021.08.04.15.07 
 - Udon Sharp: 0.20.2
 
 # Usage 
 〇〇リンクのunitypackageをインストール
-(もしくはBoothでダウンロードしてくる)
+(もしくはBoothからダウンロード)
 
 〇〇.unitypackageをUnity Projectにインストールする．
 
