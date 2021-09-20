@@ -41,7 +41,7 @@
 6. Animation Mesh Generatorウィンドウ内の"Prefab"の中に5で作成したprefabをD&Dする
    - 各種設定項目がでる．1~5に問題があればこの時点で警告が出る．
     
-        ![image](https://user-images.githubusercontent.com/44863813/133997805-3d752ef2-d931-42ea-bb51-a28427e095b1.png)
+        ![image](https://user-images.githubusercontent.com/44863813/134009209-558c0ecb-988a-40cc-8e81-c1a6faf82b9a.png)
 
 7. 設定を確認後,Convertをクリック
     - 5のディレクトリ内に変換されたprefabやマテリアルなどが作成される．
