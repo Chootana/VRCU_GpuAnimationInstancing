@@ -26,6 +26,8 @@
 
         [KeywordEnum(UNLIT, REAL)]
         _LIGHTING("Lighting", Float) = 0
+
+        [Toggle] _INSTANCING("Gpu Instancing", Float) = 1
     }
 
     CustomEditor "AGI_ShaderInspector"

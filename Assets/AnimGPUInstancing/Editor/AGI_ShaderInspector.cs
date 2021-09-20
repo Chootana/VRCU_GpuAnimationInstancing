@@ -26,6 +26,7 @@ public class AGI_ShaderInspector : ShaderGUI
     MaterialProperty isLighting;
     MaterialProperty shininess;
     MaterialProperty bumpMap;
+    MaterialProperty instancing;
 
     #endregion
 
@@ -56,7 +57,7 @@ public class AGI_ShaderInspector : ShaderGUI
         shininess = FindProperty("_Shininess", props);
         bumpMap = FindProperty("_BumpMap", props);
 
-        MaterialProperty instancing = FindProperty("_INSTANCING", props);
+        instancing = FindProperty("_INSTANCING", props);
         /* *** *** *** */
 
         // materialEditor.ShaderProperty(mainTexProps, mainTexProps.displayName);
