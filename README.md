@@ -6,7 +6,7 @@ SkinnedMeshRenderer + Animator -> MeshRenderer + Animation Texture + (専用Shad
 
 作成したキャラクターとアニメーションをそのままインスタンシング化できる．
 
-<img src="https://user-images.githubusercontent.com/44863813/133963901-c28aa6c2-53be-4ee5-a11a-485f4589dbef.gif" width="480" title="SKM_MR">
+<img src="https://user-images.githubusercontent.com/44863813/133965049-96d3a891-808c-4d8c-8f3a-54d47092db81.gif" width="960" title="SKM_MR">
 
 
 # DEMO
@@ -34,8 +34,14 @@ VRChatのワールドでロポリコンちゃんを100体描画した時．
 - Udon Sharp: 0.20.2
 
 # Usage 
+〇〇リンクのunitypackageをインストール
+(もしくはBoothでダウンロードしてくる)
 
-## How to install 
+〇〇.unitypackageをUnity Projectにインストールする．
+
+Extention ToolにAnimationGPUInstancingが現れるのでクリック
+
+使い方は以下を参照
 
 1. [基本操作](Documents/usage_basic.md)
 2. [ランダムにスポーンさせる場合](Documents/usage_random_spawn.md)
