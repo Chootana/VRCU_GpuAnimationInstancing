@@ -23,9 +23,9 @@
     
         ![image](https://user-images.githubusercontent.com/44863813/133996551-434ce391-1c01-47f6-bd6e-9dbb5ad3d093.png)
    
-   - fbxの中身を展開し，clipをAnimator側にD&**Dする．分かりやすいように名前を変更しておく．**
+   - fbxの中身を展開し，clipをAnimator側にD&Dする．分かりやすいように名前を変更しておく．
    
-   - 複数のアニメーションを想定する場合は，下図の様にする．これらのclipはバラバラに設置してOK
+   - 複数のアニメーションを想定する場合は，下図のようにする．これらのclipはバラバラに設置してOK
      
         ![image](https://user-images.githubusercontent.com/44863813/133996983-87ea1780-2a28-4b47-b283-1a1985a8dff6.png)
 
