@@ -11,10 +11,11 @@ BOOTHでサンプル付きを購入された方は既にセットアップ済み
 ## インスタンシングしたいキャラクターを準備する
 - [基本操作](Documents/usage_basic.md)参照
 
-## AGI_SpawnRandom.prefab
+## AGI_SpawnRandom.prefabをHierarchyに置く
 ![image](https://user-images.githubusercontent.com/44863813/134011195-a4e825b2-f04c-440b-855f-57a8064408fa.png)
 
-- AnimGPUInstancing/Prefabs/AGI_SpawnRandom.prefabをHierarchyに置く．
+### パラメータ説明
+
 - General Parameters 
   - Anim Character: 指定したキャラクターを設定する
   - Animation Frame Info List: 指定したキャラクターを設定する
