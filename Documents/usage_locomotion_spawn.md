@@ -2,9 +2,10 @@
 
 GPU Instancing対応させたキャラクターを用いて歩行モーションをランダムスポーンさせる方法について述べる．
 
-歩行などのモーションはAnimation Clipが繰り返されるたびに全体が移動するだろう．それに対応させるために
+- 歩行などのモーションはAnimation Clipが繰り返されるたびに全体が移動するのが自然である．
+- エディタ拡張はAnimation Textureの他に，ルート移動量を書き込んだRepeat Textureも生成する．これを用いることでAnimatorの設定である"Apply Root Motion"に対応させる
 
-BOOTHでサンプル付きを購入された方は既にセットアップ済みのSceneがある
+**BOOTHでサンプル付きを購入された方は既にセットアップ済みのSceneがある**
 - AnimGPUInstancing/Sample/Scenes/Locomotion.unityのシーンを開いて実行すると確認できる．
 
 ![locomotion_spawn_001](https://user-images.githubusercontent.com/44863813/134013760-7d80e13f-5d22-4a7d-9819-4c5fb8f9a093.gif)
@@ -47,4 +48,4 @@ BOOTHでサンプル付きを購入された方は既にセットアップ済み
 
 
 ## 動作確認
-- 実行するかVRChatのワールドとしてアップロード確認できる．
+- 実行するかVRChatのワールドとしてアップロードすることで確認できる．

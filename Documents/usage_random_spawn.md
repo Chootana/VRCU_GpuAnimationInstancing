@@ -2,7 +2,7 @@
 
 GPU Instancing対応させたキャラクターを用いてランダムスポーンさせる方法について述べる．
 
-BOOTHでサンプル付きを購入された方は既にセットアップ済みのSceneがある
+**BOOTHでサンプル付きを購入された方は既にセットアップ済みのSceneがある**
 - AnimGPUInstancing/Sample/Scenes/SpawnRandom.unityのシーンを開いて実行すると確認できる．
 
 ![usage_random_spawn_003](https://user-images.githubusercontent.com/44863813/134010915-a59af70c-7827-4249-8c4d-0c5e06b1fcc5.gif)
@@ -35,4 +35,4 @@ BOOTHでサンプル付きを購入された方は既にセットアップ済み
 
 
 ## 動作確認
-- 実行するかVRChatのワールドとしてアップロード確認できる．
+- 実行するかVRChatのワールドとしてアップロードすることで確認できる．

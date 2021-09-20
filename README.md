@@ -57,11 +57,14 @@ Extention ToolにAnimationGPUInstancingが現れるのでクリック
 # Tips 
 - [その他・注意点](Documents/tips.md)
 
+# Reference 
+This project is inspired by [UnityGpuInstancedAnimation](https://github.com/piti6/UnityGpuInstancedAnimation)
 
 # Author 
 chootana (ちゅーたな)
 
 twitter: [@choo_zap](https://twitter.com/choo_zap)
+
 # License 
  
 VRC Animation GPU Instancing is under [MIT license](https://en.wikipedia.org/wiki/MIT_License).
